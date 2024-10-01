@@ -19,10 +19,6 @@ public class BarParticle {
 
     public int age;
 
-    public final double ax = 0.00;
-    public final double ay = -0.01;
-    public final double az = 0.00;
-
     public double vx;
     public double vy;
     public double vz;
@@ -52,15 +48,15 @@ public class BarParticle {
     }
 
     public void tick() {
+        this.age++;
         this.xPrev = this.x;
         this.yPrev = this.y;
         this.zPrev = this.z;
-        this.age++;
         this.x += this.vx;
         this.y += this.vy;
         this.z += this.vz;
-        this.vx += this.ax;
-        this.vy += this.ay;
-        this.vz += this.az;
+//        this.vx *= 0.98;
+        this.vy -= 0.01;
+//        this.vz *= 0.98;
     }
 }

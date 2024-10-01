@@ -1,13 +1,12 @@
 package net.torocraft.torohealth.display;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import fuzs.immersivedamageindicators.config.ClientConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.torocraft.torohealth.bars.BarState;
+import net.torocraft.torohealth.bars.HealthTracker;
 import net.torocraft.torohealth.bars.HealthBarRenderer;
 
 public class BarDisplay {
@@ -22,13 +21,13 @@ public class BarDisplay {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
 
-        BarState barState = HealthBarRenderer.render(guiGraphics.pose(), entity, 63, 14, 130, false);
+        HealthTracker healthTracker = HealthBarRenderer.render(guiGraphics.pose(), entity, 63, 14, 137, false);
 
-        if (HealthBarRenderer.barConfig().damageNumberType.equals(ClientConfig.NumberType.CUMULATIVE)) {
-            HealthBarRenderer.drawDamageNumber(guiGraphics, font, barState.lastDmgCumulative, 63, 14, 130);
-        } else if (HealthBarRenderer.barConfig().damageNumberType.equals(ClientConfig.NumberType.LAST)) {
-            HealthBarRenderer.drawDamageNumber(guiGraphics, font, barState.lastDmg, 63, 14, 130);
-        }
+//        if (HealthBarRenderer.barConfig().damageNumberType.equals(ClientConfig.NumberType.CUMULATIVE)) {
+//            HealthBarRenderer.drawDamageNumber(guiGraphics, font, barState.lastDmgCumulative, 63, 14, 130);
+//        } else if (HealthBarRenderer.barConfig().damageNumberType.equals(ClientConfig.NumberType.LAST)) {
+//            HealthBarRenderer.drawDamageNumber(guiGraphics, font, barState.lastDmg, 63, 14, 130);
+//        }
 
         String name = this.getEntityName(entity);
         int healthMax = Mth.ceil(entity.getMaxHealth());

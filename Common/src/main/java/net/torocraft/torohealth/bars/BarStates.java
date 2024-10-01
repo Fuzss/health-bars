@@ -10,23 +10,23 @@ import java.util.List;
 import java.util.Map;
 
 public class BarStates {
-    private static final Map<Integer, BarState> STATES = new HashMap<>();
+    private static final Map<Integer, HealthTracker> STATES = new HashMap<>();
 
     public static List<BarParticle> PARTICLES = new ArrayList<>();
     private static int tickCount = 0;
 
-    public static BarState getState(LivingEntity entity) {
+    public static HealthTracker getState(LivingEntity entity) {
         int id = entity.getId();
-        BarState state = STATES.get(id);
+        HealthTracker state = STATES.get(id);
         if (state == null) {
-            state = new BarState(entity);
+            state = new HealthTracker(entity);
             STATES.put(id, state);
         }
         return state;
     }
 
     public static void tick() {
-        for (BarState state : STATES.values()) {
+        for (HealthTracker state : STATES.values()) {
             state.tick();
         }
 
@@ -44,7 +44,7 @@ public class BarStates {
         STATES.entrySet().removeIf(BarStates::stateExpired);
     }
 
-    private static boolean stateExpired(Map.Entry<Integer, BarState> entry) {
+    private static boolean stateExpired(Map.Entry<Integer, HealthTracker> entry) {
         if (entry.getValue() == null) {
             return true;
         }

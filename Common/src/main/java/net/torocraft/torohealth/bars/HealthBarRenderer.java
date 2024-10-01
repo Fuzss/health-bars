@@ -1,7 +1,7 @@
 package net.torocraft.torohealth.bars;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import fuzs.immersivedamageindicators.ImmersiveDamageIndicators;
 import fuzs.immersivedamageindicators.client.ImmersiveDamageIndicatorsClient;
@@ -13,7 +13,10 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -29,7 +32,7 @@ import java.util.List;
 public class HealthBarRenderer {
     private static final ResourceLocation GUI_BARS_TEXTURES = ImmersiveDamageIndicators.id("textures/gui/bars.png");
     private static final int DARK_GRAY = 0x808080;
-    private static final int FULL_SIZE = 40;
+    private static final int FULL_SIZE = 92;
 
     private static ClientConfig.InWorld inWorldConfig() {
         return ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).inWorld;
@@ -131,7 +134,7 @@ public class HealthBarRenderer {
         renderedEntities.clear();
     }
 
-    public static BarState render(PoseStack poseStack, LivingEntity entity, int x, int y, int width, boolean inWorld) {
+    public static HealthTracker render(PoseStack poseStack, LivingEntity entity, int x, int y, int width, boolean inWorld) {
 
         Relation relation = EntityRelationHelper.determineRelation(entity);
 
@@ -139,16 +142,21 @@ public class HealthBarRenderer {
         int deltaColor = relation.equals(Relation.FRIEND) ? barConfig().friendColorSecondary :
                 barConfig().foeColorSecondary;
 
-        BarState state = BarStates.getState(entity);
+        HealthTracker state = HealthTracker.getHealthTracker(entity);
 
-        float percent = Math.min(1, Math.min(state.health, entity.getMaxHealth()) / entity.getMaxHealth());
-        float percent2 = Math.min(state.previousHealthDisplay, entity.getMaxHealth()) / entity.getMaxHealth();
+//        float percent = Math.min(1.0F, Math.min(state.health, entity.getMaxHealth()) / entity.getMaxHealth());
+//        float percent2 = Math.min(state.previousHealthDisplay, entity.getMaxHealth()) / entity.getMaxHealth();
         int zOffset = 0;
 
-        Matrix4f matrix4f = poseStack.last().pose(); //  .getModel();
-        drawBar(matrix4f, x, y, width, 1.0F, DARK_GRAY, zOffset++, inWorld);
-        drawBar(matrix4f, x, y, width, percent2, deltaColor, zOffset++, inWorld);
-        drawBar(matrix4f, x, y, width, percent, color, zOffset, inWorld);
+        float barProgress = state.getBarProgress(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
+        float backgroundBarProgress = state.getBackgroundBarProgress(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
+
+        Matrix4f matrix4f = poseStack.last().pose();
+        drawBar(ResourceLocation.withDefaultNamespace("boss_bar/white_background"), matrix4f, x, y, width, 1.0F, DARK_GRAY, zOffset++, inWorld);
+        drawBar(ResourceLocation.withDefaultNamespace("boss_bar/white_progress"), matrix4f, x, y, width, backgroundBarProgress, deltaColor, zOffset++, inWorld);
+        drawBar(ResourceLocation.withDefaultNamespace("boss_bar/notched_12_progress"), matrix4f, x, y, width, backgroundBarProgress, deltaColor, zOffset++, inWorld);
+        drawBar(ResourceLocation.withDefaultNamespace("boss_bar/white_progress"), matrix4f, x, y, width, barProgress, color, zOffset, inWorld);
+        drawBar(ResourceLocation.withDefaultNamespace("boss_bar/notched_12_progress"), matrix4f, x, y, width, barProgress, color, zOffset, inWorld);
 
         return state;
     }
@@ -174,45 +182,72 @@ public class HealthBarRenderer {
     public static void drawString(PoseStack poseStack, Font font, String text, int x, int y, int color, boolean dropShadow) {
         MultiBufferSource.BufferSource multiBufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         font.drawInBatch(text, x, y, color, dropShadow, poseStack.last().pose(), multiBufferSource,
-                Font.DisplayMode.NORMAL, 0, 15728880, font.isBidirectional()
+                Font.DisplayMode.POLYGON_OFFSET, 0, 15728880, font.isBidirectional()
         );
     }
 
-    private static void drawBar(Matrix4f matrix4f, double x, double y, float width, float percent, int color, int zOffset, boolean inWorld) {
+    static GuiGraphics createGuiGraphics(PoseStack poseStack) {
+        return createGuiGraphics(poseStack.last().pose());
+    }
+
+    static GuiGraphics createGuiGraphics(Matrix4f matrix4f) {
+        Minecraft minecraft = Minecraft.getInstance();
+        GuiGraphics guiGraphics = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
+        guiGraphics.pose().mulPose(matrix4f);
+        return guiGraphics;
+    }
+
+    private static void drawBar(ResourceLocation resourceLocation, Matrix4f matrix4f, int posX, int posY, int width, float percentage, int color, int zOffset, boolean inWorld) {
         float c = 0.00390625F;
         int u = 0;
         int v = 6 * 5 * 2 + 5;
-        int uw = Mth.ceil(92 * percent);
+        int uw = Mth.ceil(92 * percentage);
         int vh = 5;
 
-        double size = percent * width;
-        double h = inWorld ? 4 : 6;
+        double size = percentage * width;
+        int h = inWorld ? 4 : 6;
 
-        float r = (color >> 16 & 255) / 255.0F;
-        float g = (color >> 8 & 255) / 255.0F;
-        float b = (color & 255) / 255.0F;
+        if (inWorld) zOffset *= -1;
+
+        float r = FastColor.ARGB32.red(color) / 255.0F;
+        float g = FastColor.ARGB32.green(color) / 255.0F;
+        float b = FastColor.ARGB32.blue(color) / 255.0F;
 
         RenderSystem.setShaderColor(r, g, b, 1.0F);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, GUI_BARS_TEXTURES);
-        RenderSystem.enableBlend();
+//        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+//        RenderSystem.setShaderTexture(0, GUI_BARS_TEXTURES);
+//        RenderSystem.enableBlend();
 
-        float half = width / 2;
+        int half = width / 2;
 
         float zOffsetAmount = inWorld ? -0.1F : 0.1F;
 
-        BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS,
-                DefaultVertexFormat.POSITION_TEX
+//        BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS,
+//                DefaultVertexFormat.POSITION_TEX
+//        );
+//        bufferBuilder.addVertex(matrix4f, (float) (-half + x), (float) y, zOffset * zOffsetAmount).setUv(u * c, v * c);
+//        bufferBuilder.addVertex(matrix4f, (float) (-half + x), (float) (h + y), zOffset * zOffsetAmount).setUv(u * c,
+//                (v + vh) * c
+//        );
+//        bufferBuilder.addVertex(matrix4f, (float) (-half + size + x), (float) (h + y), zOffset * zOffsetAmount).setUv(
+//                (u + uw) * c, (v + vh) * c);
+//        bufferBuilder.addVertex(matrix4f, (float) (-half + size + x), (float) y, zOffset * zOffsetAmount).setUv(
+//                ((u + uw) * c), v * c);
+//        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+
+
+        posX -= (width / 2);
+        GuiGraphics guiGraphics = createGuiGraphics(matrix4f);
+        TextureAtlasSprite sprite = Minecraft.getInstance().getGuiSprites().getSprite(resourceLocation);
+        GuiSpriteScaling.NineSlice.Border border = new GuiSpriteScaling.NineSlice.Border(2, 2, 2, 2);
+        GuiSpriteScaling.NineSlice nineSlice = new GuiSpriteScaling.NineSlice(
+                sprite.contents().width(),
+                sprite.contents().height(), border
         );
-        bufferBuilder.addVertex(matrix4f, (float) (-half + x), (float) y, zOffset * zOffsetAmount).setUv(u * c, v * c);
-        bufferBuilder.addVertex(matrix4f, (float) (-half + x), (float) (h + y), zOffset * zOffsetAmount).setUv(u * c,
-                (v + vh) * c
-        );
-        bufferBuilder.addVertex(matrix4f, (float) (-half + size + x), (float) (h + y), zOffset * zOffsetAmount).setUv(
-                (u + uw) * c, (v + vh) * c);
-        bufferBuilder.addVertex(matrix4f, (float) (-half + size + x), (float) y, zOffset * zOffsetAmount).setUv(
-                ((u + uw) * c), v * c);
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        guiGraphics.blitNineSlicedSprite(sprite, nineSlice, posX, posY, 0,
+                (int) (width * percentage), sprite.contents().height());
+        matrix4f.translate(0.0F, 0.0F, 0.03F * (inWorld ? -1 : 1));
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
     }
 }

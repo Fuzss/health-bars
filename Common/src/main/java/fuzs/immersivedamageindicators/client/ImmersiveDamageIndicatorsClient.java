@@ -8,6 +8,7 @@ import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
 import fuzs.puzzleslib.api.client.event.v1.gui.RenderGuiEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.RenderLevelEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.RenderLivingEvents;
+import fuzs.puzzleslib.api.event.v1.entity.EntityTickEvents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -23,6 +24,7 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
 import net.torocraft.torohealth.bars.BarStates;
 import net.torocraft.torohealth.bars.HealthBarRenderer;
+import net.torocraft.torohealth.bars.HealthTracker;
 import net.torocraft.torohealth.bars.ParticleRenderer;
 import net.torocraft.torohealth.display.HudRenderer;
 import net.torocraft.torohealth.util.RayTraceGetter;
@@ -48,7 +50,7 @@ public class ImmersiveDamageIndicatorsClient implements ClientModConstructor {
                         distance
                 );
                 ImmersiveDamageIndicatorsClient.HUD_RENDERER.setEntity(entityInCrosshair);
-                BarStates.tick();
+//                BarStates.tick();
                 ImmersiveDamageIndicatorsClient.HUD_RENDERER.tick();
             }
         });
@@ -58,6 +60,11 @@ public class ImmersiveDamageIndicatorsClient implements ClientModConstructor {
                     HealthBarRenderer.renderInWorld(poseStack, camera);
                     ParticleRenderer.renderParticles(poseStack, camera);
                 });
+        EntityTickEvents.END.register(entity -> {
+            if (entity instanceof LivingEntity livingEntity) {
+                HealthTracker.getHealthTracker(livingEntity).tick();
+            }
+        });
     }
 
     static <T extends LivingEntity, M extends EntityModel<T>> void onAfterRenderEntity(T entity, LivingEntityRenderer<T, M> renderer, float partialTick, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight) {

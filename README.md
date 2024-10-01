@@ -1,11 +1,5 @@
-# ToroHealth Damage Indicators
+# Example Mod
 
-With ToroHealth Damage Indicators, damage given, received, or mitigated will be displayed as a number that pops off of the entity.
+A Minecraft mod. Downloads can be found on [CurseForge](https://www.curseforge.com/members/fuzs_/projects) and [Modrinth](https://modrinth.com/user/Fuzs).
 
-Also, health bars will appear in the top left corner for the entity in the player's crosshairs.
-
-Customization options are available for changing the color of the damage numbers and the display style of the health bar (Compact or Standard).  I will soon be adding options to re-position the health bars and may make some visual tweaks to them.
-
-### [Download from here](https://minecraft.curseforge.com/projects/torohealth-damage-indicators)
-
-![Screenshot](https://i.imgur.com/C9oBhZ5.png)
+![](https://raw.githubusercontent.com/Fuzss/modresources/main/pages/data/examplemod/banner.png)

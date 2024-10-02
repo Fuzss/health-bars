@@ -4,10 +4,31 @@ import fuzs.puzzleslib.api.config.v3.Config;
 import fuzs.puzzleslib.api.config.v3.ConfigCore;
 
 public class ClientConfig implements ConfigCore {
+    private static final String KEY_GENERAL_CATEGORY = "general";
+
+    @Config(category = KEY_GENERAL_CATEGORY, description = "Show plaques for the entity picked by the crosshair only.")
+    public boolean pickedEntity = false;
+    @Config(category = KEY_GENERAL_CATEGORY, description = {"The raytrace range for finding a picked entity.", "Setting this to -1 will make it use the player entity interaction range, which is 3 in survival."})
+    @Config.IntRange(min = -1, max = 64)
+    public int pickedEntityInteractionRange = -1;
+    @Config(category = KEY_GENERAL_CATEGORY, description = {
+            "Coyote time in seconds after which a no longer picked entity will still show the plaques.", "Set to -1 to keep the old entity until a new one is picked by the crosshair."
+    })
+    @Config.IntRange(min = -1)
+    public int pickedEntityDelay = 2;
+    @Config(category = KEY_GENERAL_CATEGORY, description = "Custom scale for rendering plaques.")
+    @Config.DoubleRange(min = 0.05, max = 2.0)
+    public double plaqueScale = 0.5;
+    @Config(category = KEY_GENERAL_CATEGORY, description = "Dynamically increase plaque size the further away the camera is to simplify readability.")
+    public boolean scaleWithDistance = true;
+    @Config(category = KEY_GENERAL_CATEGORY, description = "Distance to the mob at which plaques will still be visible. The distance is halved when the mob is crouching.")
+    @Config.IntRange(min = 0)
+    public int maxRenderDistance = 48;
+
     @Config
     public Hud hud = new Hud();
     @Config
-    public Bar bar = new Bar();
+    public BarColors barColors = new BarColors();
     @Config
     public InWorld inWorld = new InWorld();
     @Config
@@ -40,8 +61,6 @@ public class ClientConfig implements ConfigCore {
         public boolean showBar = true;
         @Config
         public boolean showSkin = true;
-        @Config
-        public boolean onlyWhenHurt = false;
     }
 
     public static class Particle implements ConfigCore {
@@ -64,47 +83,58 @@ public class ClientConfig implements ConfigCore {
         }
     }
 
-    public static class Bar implements ConfigCore {
-        @Config
-        public NumberType damageNumberType = NumberType.LAST;
-        @Config(name = "friend_color")
-        String rawFriendColor = "#00FF00";
-        @Config(name = "friend_color_secondary")
-        String rawFriendColorSecondary = "#008000";
-        @Config(name = "foe_color")
-        String rawFoeColor = "#FF0000";
-        @Config(name = "foe_color_secondary")
-        String rawFoeColorSecondary = "#800000";
+    public static class BarColors implements ConfigCore {
+        @Config(name = "background_color")
+        String rawBackgroundColor = "#8C8C8C";
+        @Config(name = "friendly_color")
+        String rawFriendlyColor = "#1DEC00";
+        @Config(name = "aquatic_color")
+        String rawAquaticColor = "#00B7EC";
+        @Config(name = "arthropod_color")
+        String rawArthropodColor = "#E9EC00";
+        @Config(name = "monster_color")
+        String rawMonsterColor = "#EC3500";
+        @Config(name = "illager_color")
+        String rawIllagerColor = "#ECECEC";
+        @Config(name = "dragon_color")
+        String rawDragonColor = "#EC00B8";
+        @Config(name = "boss_color")
+        String rawBossColor = "#7B00EC";
+        @Config(description = "Dim background color amount.")
+        @Config.DoubleRange(min = 0.0, max = 1.0)
+        public double backgroundDim = 0.5;
 
+        public int backgroundColor;
         public int friendColor;
-        public int friendColorSecondary;
-        public int foeColor;
-        public int foeColorSecondary;
+        public int aquaticColor;
+        public int arthropodColor;
+        public int monsterColor;
+        public int illagerColor;
+        public int dragonColor;
+        public int bossColor;
 
         @Override
         public void afterConfigReload() {
-            this.friendColor = parseRGBColor(this.rawFriendColor);
-            this.friendColorSecondary = parseRGBColor(this.rawFriendColorSecondary);
-            this.foeColor = parseRGBColor(this.rawFoeColor);
-            this.foeColorSecondary = parseRGBColor(this.rawFoeColorSecondary);
+            this.backgroundColor = parseRGBColor(this.rawBackgroundColor);
+            this.friendColor = parseRGBColor(this.rawFriendlyColor);
+            this.aquaticColor = parseRGBColor(this.rawAquaticColor);
+            this.arthropodColor = parseRGBColor(this.rawArthropodColor);
+            this.monsterColor = parseRGBColor(this.rawMonsterColor);
+            this.illagerColor = parseRGBColor(this.rawIllagerColor);
+            this.dragonColor = parseRGBColor(this.rawDragonColor);
+            this.bossColor = parseRGBColor(this.rawBossColor);
         }
     }
 
     public static class InWorld implements ConfigCore {
         @Config
-        public Mode mode = Mode.NONE;
+        public boolean mode = true;
         @Config
         public int distance = 60;
         @Config
         public boolean onlyWhenLookingAt = false;
         @Config
         public boolean onlyWhenHurt = false;
-    }
-
-    public enum Mode {
-        NONE,
-        WHEN_HOLDING_WEAPON,
-        ALWAYS
     }
 
     public enum NumberType {

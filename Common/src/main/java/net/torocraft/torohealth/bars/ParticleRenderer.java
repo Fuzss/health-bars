@@ -12,10 +12,15 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ParticleRenderer {
 
+    public static List<BarParticle> PARTICLES = new ArrayList<>();
+
     public static void renderParticles(PoseStack poseStack, Camera camera) {
-        for (BarParticle particle : BarStates.PARTICLES) {
+        for (BarParticle particle : PARTICLES) {
             renderParticle(poseStack, particle, camera);
         }
     }
@@ -57,5 +62,10 @@ public class ParticleRenderer {
         RenderSystem.disableBlend();
 
         poseStack.popPose();
+    }
+
+    public static void tick() {
+        PARTICLES.forEach(p -> p.tick());
+        PARTICLES.removeIf(p -> p.age > 50);
     }
 }

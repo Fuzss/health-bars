@@ -9,7 +9,6 @@ import fuzs.immersivedamageindicators.config.ClientConfig;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
 import fuzs.puzzleslib.api.event.v1.data.DefaultedValue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -31,7 +30,9 @@ public class InLevelRenderingHandler {
 
     @SuppressWarnings("ConstantValue")
     public static EventResult onRenderNameTag(Entity entity, DefaultedValue<Component> content, EntityRenderer<?> entityRenderer, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, float partialTick) {
-        if (!isRenderingInInventory && entity instanceof LivingEntity livingEntity) {
+        if (isRenderingInInventory) {
+            return EventResult.DENY;
+        } else if (entity instanceof LivingEntity livingEntity && livingEntity.isAlive()) {
             Minecraft minecraft = Minecraft.getInstance();
             EntityRenderDispatcher dispatcher = entityRenderer.entityRenderDispatcher;
             Vec3 vec3 = entity.getAttachments().getNullable(EntityAttachment.NAME_TAG, 0,
@@ -48,12 +49,11 @@ public class InLevelRenderingHandler {
                 float plaqueScale = getPlaqueScale(livingEntity, dispatcher, minecraft.player);
                 // x and z are flipped as of 1.21
                 poseStack.scale(0.025F * plaqueScale, -0.025F * plaqueScale, -0.025F * plaqueScale);
-                int heightOffset = computeHeightOffset(livingEntity, content.get(), plaqueScale, minecraft.font);
-//                renderAllPlaques(livingEntity, poseStack, multiBufferSource, packedLight, heightOffset, minecraft.font);
+                int heightOffset = "deadmau5".equals(content.get().getString()) ? -13 : -3;
 
                 HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
                 if (healthTracker != null) {
-                    HealthBarRenderer.render(healthTracker, poseStack, livingEntity, 0, 0, HealthBarHelper.getBarWidthByScale(2), true);
+                    HealthBarRenderer.render(healthTracker, poseStack, livingEntity, 0, heightOffset + 8, HealthBarHelper.getBarWidthByScale(2), true, partialTick);
                 }
 
                 poseStack.popPose();
@@ -74,17 +74,5 @@ public class InLevelRenderingHandler {
         }
 
         return plaqueScale;
-    }
-
-    private static int computeHeightOffset(LivingEntity livingEntity, Component nameComponent, float plaqueScale, Font font) {
-        int heightOffset = "deadmau5".equals(nameComponent.getString()) ? -13 : -3;
-//        heightOffset -= (int) (MobPlaques.CONFIG.get(ClientConfig.class).heightOffset * (0.5F / plaqueScale));
-//        if (MobPlaques.CONFIG.get(ClientConfig.class).renderBelowNameTag) {
-//            heightOffset += (int) (23 * (0.5F / plaqueScale));
-//        } else {
-//            int plaquesHeight = getPlaquesHeight(font, livingEntity);
-//            heightOffset -= (int) ((plaquesHeight + PLAQUE_VERTICAL_DISTANCE) * (0.5F / plaqueScale));
-//        }
-        return heightOffset;
     }
 }

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParticleRenderer {
-
     public static List<BarParticle> PARTICLES = new ArrayList<>();
 
     public static void renderParticles(PoseStack poseStack, Camera camera) {
@@ -26,11 +25,6 @@ public class ParticleRenderer {
     }
 
     private static void renderParticle(PoseStack poseStack, BarParticle particle, Camera camera) {
-        double distanceSquared = camera.getPosition().distanceToSqr(particle.x, particle.y, particle.z);
-        int distance = ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).particle.distance;
-        if (distanceSquared > distance * distance) {
-            return;
-        }
 
         float scaleToGui = 0.025f;
 

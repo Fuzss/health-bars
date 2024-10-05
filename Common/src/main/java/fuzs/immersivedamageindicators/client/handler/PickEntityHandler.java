@@ -102,6 +102,8 @@ public class PickEntityHandler {
     }
 
     public static void onStartClientTick(Minecraft minecraft) {
-        if (pickDelay > 0) pickDelay--;
+        if (minecraft.level != null && !minecraft.isPaused()) {
+            if (pickDelay > 0) pickDelay--;
+        }
     }
 }

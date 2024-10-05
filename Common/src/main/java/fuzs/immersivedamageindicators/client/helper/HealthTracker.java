@@ -8,6 +8,10 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
 public class HealthTracker {
+    static final int MAX_HEALTH_DELAY = 30;
+    static final int MAX_HEALTH_DELAY_PROGRESS = 10;
+    static final int MAX_HEALTH_DELAY_FREEZE_TICKS = 200;
+
     @Nullable
     private Component displayName;
     private float maxHealth;
@@ -56,12 +60,13 @@ public class HealthTracker {
             this.lastHealth = this.getLastHealthProgress(1.0F);
             this.lastHealthDelta = health - this.health;
             this.health = health;
-            this.healthDelay = health > 0.0F && this.healthDelayFreezeTicks > 0 ? 30 : 10;
+            this.healthDelay =
+                    health > 0.0F && this.healthDelayFreezeTicks > 0 ? MAX_HEALTH_DELAY : MAX_HEALTH_DELAY_PROGRESS;
         } else if (this.healthDelay > 0) {
             this.healthDelay--;
         } else {
             this.lastHealth = health;
-            this.healthDelayFreezeTicks = 100;
+            this.healthDelayFreezeTicks = MAX_HEALTH_DELAY_FREEZE_TICKS;
         }
         this.displayName = livingEntity.getDisplayName();
         this.maxHealth = livingEntity.getMaxHealth();
@@ -89,7 +94,7 @@ public class HealthTracker {
     }
 
     private float getLastHealthProgress(float partialTick) {
-        float delta = Mth.clamp(1.0F - (this.healthDelay - partialTick) / 10.0F, 0.0F, 1.0F);
+        float delta = Mth.clamp(1.0F - (this.healthDelay - partialTick) / MAX_HEALTH_DELAY_PROGRESS, 0.0F, 1.0F);
         return Mth.lerp(delta, this.lastHealth, this.health);
     }
 

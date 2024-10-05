@@ -48,16 +48,18 @@ public class InLevelRenderingHandler {
                 poseStack.mulPose(dispatcher.cameraOrientation());
                 float plaqueScale = getPlaqueScale(livingEntity, dispatcher, minecraft.player);
                 // x and z are flipped as of 1.21
-                poseStack.scale(0.025F * plaqueScale, -0.025F * plaqueScale, -0.025F * plaqueScale);
+                poseStack.scale(0.025F * plaqueScale, -0.025F * plaqueScale, 0.025F * plaqueScale);
                 int heightOffset = "deadmau5".equals(content.get().getString()) ? -13 : -3;
 
                 HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
                 if (healthTracker != null) {
-                    HealthBarRenderer.render(healthTracker, poseStack, livingEntity, 0, heightOffset + 8, HealthBarHelper.getBarWidthByScale(2), true, partialTick);
+                    HealthBarRenderer.renderHealthBar(healthTracker, poseStack, livingEntity, 0, heightOffset + 8, HealthBarHelper.getBarWidthByScale(2), true, partialTick);
                 }
 
                 poseStack.popPose();
             }
+
+            return EventResult.DENY;
         }
 
         return EventResult.PASS;

@@ -3,10 +3,10 @@ package fuzs.immersivedamageindicators.client.handler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fuzs.immersivedamageindicators.ImmersiveDamageIndicators;
 import fuzs.immersivedamageindicators.client.helper.EntityVisibilityHelper;
-import fuzs.immersivedamageindicators.client.helper.GuiGraphicsHelper;
 import fuzs.immersivedamageindicators.client.helper.HealthBarHelper;
 import fuzs.immersivedamageindicators.client.helper.HealthTracker;
 import fuzs.immersivedamageindicators.config.ClientConfig;
+import fuzs.puzzleslib.api.client.gui.v2.components.GuiGraphicsHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -23,18 +23,15 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.torocraft.torohealth.bars.HealthBarRenderer;
 
 public class GuiRenderingHandler {
     private static final int FRAME_SIZE = 42;
-    private static final ResourceLocation HOTBAR_OFFHAND_LEFT_SPRITE = ResourceLocation.withDefaultNamespace(
-            "hud/hotbar_offhand_left");
     private static final ResourceLocation HOTBAR_OFFHAND_LEFT_LOCATION = ResourceLocation.withDefaultNamespace(
             "textures/gui/sprites/hud/hotbar_offhand_left.png");
-    private static final ResourceLocation HEART_CONTAINER_SPRITE = ResourceLocation.withDefaultNamespace(
+    public static final ResourceLocation HEART_CONTAINER_SPRITE = ResourceLocation.withDefaultNamespace(
             "hud/heart/container");
-    private static final ResourceLocation HEART_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/heart/full");
+    public static final ResourceLocation HEART_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/heart/full");
     private static final ResourceLocation ARMOR_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/armor_full");
 
     public static void onAfterRenderGui(Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -53,11 +50,6 @@ public class GuiRenderingHandler {
                 GuiGraphicsHelper.blitNineSliced(guiGraphics, HOTBAR_OFFHAND_LEFT_LOCATION, posX, posY, FRAME_SIZE,
                         FRAME_SIZE, 4, 4, 4, 4, 22, 22, 0, 1, 29, 24
                 );
-                guiGraphics.blitSprite(HOTBAR_OFFHAND_LEFT_SPRITE, 29, 24, 0, 1, posX - 5, posY + FRAME_SIZE - 13, 22,
-                        22
-                );
-                ItemStack itemStack = HealthBarHelper.getDisplayItem(livingEntity).getDefaultInstance();
-                guiGraphics.renderFakeItem(itemStack, posX - 5 + 3, posY + FRAME_SIZE - 13 + 3);
                 InLevelRenderingHandler.setIsRenderingInInventory(true);
                 InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, posX + 4, posY + 4,
                         posX + FRAME_SIZE - 4, posY + FRAME_SIZE - 4, 25, 0.0625F * 8.0F, 80, 20, livingEntity
@@ -80,18 +72,23 @@ public class GuiRenderingHandler {
                 int maxWidth = (barWidth - 2) * 2 / 3 - minecraft.font.width(CommonComponents.ELLIPSIS);
                 FormattedText formattedText;
                 if (minecraft.font.width(component) * 3 / 2 > maxWidth) {
-                    Component ellipsis = Component.empty().append(CommonComponents.ELLIPSIS).withStyle(component.getStyle());
-                    formattedText = FormattedText.composite(minecraft.font.substrByWidth(component, maxWidth), ellipsis);
+                    Component ellipsis = Component.empty().append(CommonComponents.ELLIPSIS).withStyle(
+                            component.getStyle());
+                    formattedText = FormattedText.composite(minecraft.font.substrByWidth(component, maxWidth),
+                            ellipsis
+                    );
                 } else {
                     formattedText = component;
                 }
-                guiGraphics.drawString(minecraft.font, Language.getInstance().getVisualOrder(formattedText), posX * 2 / 3, (posY + 5) * 2 / 3, -1, true);
+                guiGraphics.drawString(minecraft.font, Language.getInstance().getVisualOrder(formattedText),
+                        posX * 2 / 3, (posY + 5) * 2 / 3, -1, true
+                );
                 guiGraphics.pose().popPose();
 
                 RenderSystem.enableBlend();
 
                 posY += FRAME_SIZE / 2;
-                HealthBarRenderer.render(healthTracker, guiGraphics.pose(), livingEntity, posX - 1 + barWidth / 2, posY,
+                HealthBarRenderer.renderHealthBar(healthTracker, guiGraphics.pose(), livingEntity, posX - 1 + barWidth / 2, posY,
                         barWidth, false, partialTick
                 );
                 drawDamageNumber(guiGraphics, minecraft.font, healthTracker.getHealthDelta(),

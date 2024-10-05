@@ -4,14 +4,11 @@ import fuzs.immersivedamageindicators.ImmersiveDamageIndicators;
 import fuzs.immersivedamageindicators.config.ClientConfig;
 import fuzs.immersivedamageindicators.init.ModRegistry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 
 public class HealthBarHelper {
     private static final ResourceLocation[] BAR_BACKGROUND_SPRITES = new ResourceLocation[]{
@@ -83,25 +80,6 @@ public class HealthBarHelper {
                     default -> config.miscColor;
                 };
             }
-        }
-    }
-
-    public static Item getDisplayItem(LivingEntity livingEntity) {
-        EntityType<?> entityType = livingEntity.getType();
-        if (entityType.is(EntityTypeTags.ILLAGER)) {
-            return Items.EMERALD;
-        } else if (entityType.is(EntityTypeTags.ARTHROPOD)) {
-            return Items.COBWEB;
-        } else if (entityType.is(EntityTypeTags.AQUATIC)) {
-            return Items.KELP;
-        } else if (entityType == EntityType.ENDER_DRAGON) {
-            return Items.DRAGON_EGG;
-        } else if (entityType.is(ModRegistry.BOSSES_ENTITY_TYPE_TAG)) {
-            return Items.NETHER_STAR;
-        } else if (livingEntity instanceof Enemy) {
-            return Items.ROTTEN_FLESH;
-        } else {
-            return Items.WHEAT;
         }
     }
 }

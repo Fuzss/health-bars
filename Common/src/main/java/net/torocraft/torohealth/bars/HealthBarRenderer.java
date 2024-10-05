@@ -4,83 +4,92 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.immersivedamageindicators.ImmersiveDamageIndicators;
 import fuzs.immersivedamageindicators.client.handler.GuiRenderingHandler;
-import fuzs.immersivedamageindicators.client.helper.GuiGraphicsHelper;
 import fuzs.immersivedamageindicators.client.helper.HealthBarHelper;
 import fuzs.immersivedamageindicators.client.helper.HealthTracker;
+import fuzs.immersivedamageindicators.client.helper.MutableGuiGraphics;
+import fuzs.immersivedamageindicators.client.renderer.ModRenderType;
 import fuzs.immersivedamageindicators.config.ClientConfig;
+import fuzs.puzzleslib.api.client.gui.v2.components.GuiGraphicsHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.LivingEntity;
-import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
 
 public class HealthBarRenderer {
 
-    private static ClientConfig.ParticleColors particleConfig() {
-        return ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).particleColors;
-    }
-
-    public static void render(HealthTracker healthTracker, PoseStack poseStack, LivingEntity entity, int x, int y, int width, boolean inWorld, float partialTick) {
-
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+    public static void renderHealthBar(HealthTracker healthTracker, PoseStack poseStack, LivingEntity entity, int posX, int posY, int width, boolean inWorld, float partialTick) {
 
         float barProgress = healthTracker.getBarProgress(partialTick);
         float backgroundBarProgress = healthTracker.getBackgroundBarProgress(partialTick);
         BossEvent.BossBarColor barColor = HealthBarHelper.getBarColor(entity);
-        ClientConfig.NotchedStyle notchedStyle = ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).barColors.notchedStyle;
+        ClientConfig.NotchedStyle notchedStyle = ImmersiveDamageIndicators.CONFIG.get(
+                ClientConfig.class).barColors.notchedStyle;
 
-        Matrix4f matrix4f = poseStack.last().pose();
-        drawBar(HealthBarHelper.getBarSprite(BossEvent.BossBarColor.WHITE, true), matrix4f, x, y, width, 1.0F, inWorld);
-        drawBar(HealthBarHelper.getBarSprite(barColor, true), matrix4f, x, y, width, backgroundBarProgress, inWorld);
+        renderHealthBar(HealthBarHelper.getBarSprite(BossEvent.BossBarColor.WHITE, true), poseStack, posX, posY, width, 1.0F);
+        renderHealthBar(HealthBarHelper.getBarSprite(barColor, true), poseStack, posX, posY, width, backgroundBarProgress);
         if (notchedStyle != ClientConfig.NotchedStyle.NONE) {
-            drawBar(HealthBarHelper.getOverlaySprite(BossEvent.BossBarOverlay.NOTCHED_12, true), matrix4f, x, y, width,
-                    notchedStyle == ClientConfig.NotchedStyle.COLORED ? backgroundBarProgress : 1.0F, inWorld
+            renderHealthBar(HealthBarHelper.getOverlaySprite(BossEvent.BossBarOverlay.NOTCHED_12, true), poseStack, posX,
+                    posY, width, notchedStyle == ClientConfig.NotchedStyle.COLORED ? backgroundBarProgress : 1.0F
             );
         }
-        drawBar(HealthBarHelper.getBarSprite(barColor, false), matrix4f, x, y, width, barProgress, inWorld);
+        renderHealthBar(HealthBarHelper.getBarSprite(barColor, false), poseStack, posX, posY, width, barProgress);
         if (notchedStyle != ClientConfig.NotchedStyle.NONE) {
-            drawBar(HealthBarHelper.getOverlaySprite(BossEvent.BossBarOverlay.NOTCHED_12, false), matrix4f, x, y, width,
-                    barProgress, inWorld
+            renderHealthBar(HealthBarHelper.getOverlaySprite(BossEvent.BossBarOverlay.NOTCHED_12, false), poseStack, posX,
+                    posY, width, barProgress
             );
         }
-    }
 
-    public static void drawDamageNumber(GuiGraphics guiGraphics, Font font, int damageAmount, int posX, int posY, int width) {
-        if (damageAmount != 0) {
-            String s = Integer.toString(Math.abs(damageAmount));
-            int stringWidth = font.width(s);
-            int color = GuiRenderingHandler.getTextColor(damageAmount);
-            guiGraphics.drawString(font, s, posX + (width / 2) - stringWidth, posY + 5, color, true);
+        if (inWorld) {
+            Font font = Minecraft.getInstance().font;
+
+            float f = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+            int alpha = (int)(f * 255.0F) << 24;
+            if (font.width(healthTracker.getDisplayName()) < width / 2) {
+
+                posX -= (width / 2);
+                posY -= font.lineHeight + 1;
+                font.drawInBatch(healthTracker.getDisplayName(), posX + 1, posY, -1, true, poseStack.last()
+                        .pose(), Minecraft.getInstance().renderBuffers().bufferSource(), Font.DisplayMode.POLYGON_OFFSET, 0, 15728880);
+
+
+                Component component = Component.literal(healthTracker.getHealth() + "/" + healthTracker.getMaxHealth());
+                posX += width - 1 - font.width(component) - 2 - 9;
+                GuiGraphics guiGraphics = GuiGraphicsHelper.create(poseStack);
+                guiGraphics.drawString(font, component, posX, posY, -1, true);
+                posX += font.width(component) + 2;
+                guiGraphics.blitSprite(GuiRenderingHandler.HEART_CONTAINER_SPRITE, posX, posY, 9, 9);
+                guiGraphics.blitSprite(GuiRenderingHandler.HEART_FULL_SPRITE, posX, posY, 9, 9);
+            } else {
+                posY -= (font.lineHeight + 1) * 2;
+                font.drawInBatch(healthTracker.getDisplayName(), posX - font.width(healthTracker.getDisplayName()) / 2, posY, -1, true, poseStack.last()
+                        .pose(), Minecraft.getInstance().renderBuffers().bufferSource(), Font.DisplayMode.POLYGON_OFFSET, 0, 15728880);
+
+                posY += (font.lineHeight + 1) * 1;
+                Component component = Component.literal(healthTracker.getHealth() + "/" + healthTracker.getMaxHealth());
+                posX -= (font.width(component) + 2 + 9) / 2;
+                GuiGraphics guiGraphics = GuiGraphicsHelper.create(poseStack);
+                guiGraphics.drawString(font, component, posX, posY, -1, true);
+                posX += font.width(component) + 2;
+                guiGraphics.blitSprite(GuiRenderingHandler.HEART_CONTAINER_SPRITE, posX, posY, 9, 9);
+                guiGraphics.blitSprite(GuiRenderingHandler.HEART_FULL_SPRITE, posX, posY, 9, 9);
+
+            }
+
         }
     }
 
-    public static void drawDamageNumber(PoseStack poseStack, Font font, int damageAmount, int posX, int posY, int width) {
-        if (damageAmount != 0) {
-            String s = Integer.toString(Math.abs(damageAmount));
-            int stringWidth = font.width(s);
-            int color = GuiRenderingHandler.getTextColor(damageAmount);
-            drawString(poseStack, font, s, posX + (width / 2) - stringWidth, posY + 5, color, true);
-        }
-    }
-
-    public static void drawString(PoseStack poseStack, Font font, String text, int x, int y, int color, boolean dropShadow) {
-        MultiBufferSource.BufferSource multiBufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        font.drawInBatch(text, x, y, color, dropShadow, poseStack.last().pose(), multiBufferSource,
-                Font.DisplayMode.POLYGON_OFFSET, 0, 15728880, font.isBidirectional()
-        );
-    }
-
-    private static void drawBar(ResourceLocation resourceLocation, Matrix4f matrix4f, int posX, int posY, int width, float percentage, boolean inWorld) {
+    private static void renderHealthBar(ResourceLocation resourceLocation, PoseStack poseStack, int posX, int posY, int width, float percentage) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         posX -= (width / 2);
-        GuiGraphics guiGraphics = GuiGraphicsHelper.create(matrix4f);
+        MutableGuiGraphics guiGraphics = new MutableGuiGraphics(poseStack).setAlpha(0.125F)
+                .setBlitOffset(0.01F)
+                .setRenderType(ModRenderType.ICON_SEE_THROUGH);
         guiGraphics.blitSprite(resourceLocation, posX, posY, (int) (width * percentage), 5);
-        matrix4f.translate(0.0F, 0.0F, 0.03F * (inWorld ? -1 : 1));
+        guiGraphics.setAlpha(1.0F).setBlitOffset(0.0F).setRenderType(ModRenderType.ICON);
+        guiGraphics.blitSprite(resourceLocation, posX, posY, (int) (width * percentage), 5);
+        poseStack.translate(0.0F, 0.0F, 0.03F);
     }
 }

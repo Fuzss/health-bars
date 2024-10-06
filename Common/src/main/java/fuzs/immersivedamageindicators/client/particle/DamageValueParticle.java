@@ -2,7 +2,9 @@ package fuzs.immersivedamageindicators.client.particle;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import fuzs.immersivedamageindicators.ImmersiveDamageIndicators;
 import fuzs.immersivedamageindicators.client.handler.GuiRenderingHandler;
+import fuzs.immersivedamageindicators.config.ClientConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -12,9 +14,6 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.locale.Language;
-import net.minecraft.network.chat.FormattedText;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
@@ -56,15 +55,9 @@ public class DamageValueParticle extends Particle {
         poseStack.translate(x, y, z);
         poseStack.mulPose(quaternion);
         poseStack.scale(0.025F, -0.025F, 0.025F);
-        String s = Integer.toString(Math.abs(this.damageValue));
-        int stringWidth = font.width(s);
-        int color = GuiRenderingHandler.getTextColor(this.damageValue);
-//        font.drawInBatch(s, -stringWidth / 2, 0.0F, color, true, poseStack.last().pose(), bufferSource,
-//                Font.DisplayMode.POLYGON_OFFSET, 0, 15728880, font.isBidirectional()
-//        );
-        FormattedCharSequence formattedCharSequence = Language.getInstance().getVisualOrder(FormattedText.of(s));
-        font.drawInBatch8xOutline(formattedCharSequence, -stringWidth / 2, 0.0F, color, 0, poseStack.last().pose(), bufferSource,
-                15728880
+        ClientConfig.DamageValues damageValues = ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).world.damageValues;
+        GuiRenderingHandler.drawDamageNumber(poseStack, bufferSource, font, this.damageValue, 0, 0, 15728880,
+                damageValues
         );
         poseStack.popPose();
     }

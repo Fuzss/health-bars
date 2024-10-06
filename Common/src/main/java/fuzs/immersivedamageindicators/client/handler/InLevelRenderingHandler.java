@@ -5,10 +5,13 @@ import fuzs.immersivedamageindicators.ImmersiveDamageIndicators;
 import fuzs.immersivedamageindicators.client.helper.EntityVisibilityHelper;
 import fuzs.immersivedamageindicators.client.helper.HealthBarHelper;
 import fuzs.immersivedamageindicators.client.helper.HealthTracker;
+import fuzs.immersivedamageindicators.client.helper.MutableGuiGraphics;
+import fuzs.immersivedamageindicators.client.renderer.ModRenderType;
 import fuzs.immersivedamageindicators.config.ClientConfig;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
 import fuzs.puzzleslib.api.event.v1.data.DefaultedValue;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -33,30 +36,53 @@ public class InLevelRenderingHandler {
         if (isRenderingInInventory) {
             return EventResult.DENY;
         } else if (entity instanceof LivingEntity livingEntity && livingEntity.isAlive()) {
-            Minecraft minecraft = Minecraft.getInstance();
-            EntityRenderDispatcher dispatcher = entityRenderer.entityRenderDispatcher;
-            Vec3 vec3 = entity.getAttachments().getNullable(EntityAttachment.NAME_TAG, 0,
-                    entity.getViewYRot(partialTick)
-            );
-            // other mods might be rendering this mob without a level in some menu, so camera is null then
-            if (vec3 != null && dispatcher.camera != null && dispatcher.camera.getEntity() instanceof LivingEntity &&
-                    EntityVisibilityHelper.isEntityVisible(minecraft.level, livingEntity, minecraft.player, partialTick,
-                            dispatcher, false
-                    )) {
-                poseStack.pushPose();
-                poseStack.translate(vec3.x, vec3.y + 0.5, vec3.z);
-                poseStack.mulPose(dispatcher.cameraOrientation());
-                float plaqueScale = getPlaqueScale(livingEntity, dispatcher, minecraft.player);
-                // x and z are flipped as of 1.21
-                poseStack.scale(0.025F * plaqueScale, -0.025F * plaqueScale, 0.025F * plaqueScale);
-                int heightOffset = "deadmau5".equals(content.get().getString()) ? -13 : -3;
+            HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
+            if (healthTracker != null) {
 
-                HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
-                if (healthTracker != null) {
-                    HealthBarRenderer.renderHealthBar(healthTracker, poseStack, livingEntity, 0, heightOffset + 8, HealthBarHelper.getBarWidthByScale(2), true, partialTick);
+                Minecraft minecraft = Minecraft.getInstance();
+                EntityRenderDispatcher dispatcher = entityRenderer.entityRenderDispatcher;
+                Vec3 vec3 = entity.getAttachments().getNullable(EntityAttachment.NAME_TAG, 0,
+                        entity.getViewYRot(partialTick)
+                );
+                // other mods might be rendering this mob without a level in some menu, so camera is null then
+                if (vec3 != null && dispatcher.camera != null &&
+                        dispatcher.camera.getEntity() instanceof LivingEntity && EntityVisibilityHelper.isEntityVisible(
+                        minecraft.level, livingEntity, minecraft.player, partialTick, dispatcher, false)) {
+                    poseStack.pushPose();
+                    poseStack.translate(vec3.x, vec3.y + 0.5, vec3.z);
+                    poseStack.mulPose(dispatcher.cameraOrientation());
+                    float plaqueScale = getPlaqueScale(livingEntity, dispatcher, minecraft.player);
+                    // x and z are flipped as of 1.21
+                    poseStack.scale(0.025F * plaqueScale, -0.025F * plaqueScale, 0.025F * plaqueScale);
+                    int heightOffset = "deadmau5".equals(content.get().getString()) ? -13 : -3;
+
+                    ClientConfig.BarConfig config = ImmersiveDamageIndicators.CONFIG.get(
+                            ClientConfig.class).world;
+                    int barWidth = HealthBarHelper.getBarWidth(config, healthTracker);
+
+                    MutableGuiGraphics guiGraphics = new MutableGuiGraphics(poseStack).setAlpha(0.125F)
+                            .setBlitOffset(0.01F)
+                            .setRenderType(ModRenderType.ICON_SEE_THROUGH).setFontDisplayMode(Font.DisplayMode.SEE_THROUGH);
+                    HealthBarRenderer.renderHealthBar(healthTracker, guiGraphics, livingEntity, 0, heightOffset + 8,
+                            barWidth, partialTick, config.barColors
+                    );
+                    HealthBarRenderer.renderHealthBarDecorations(healthTracker, guiGraphics, 0, heightOffset + 8,
+                            barWidth
+                    );
+                    guiGraphics.flush();
+                    guiGraphics.setAlpha(1.0F).setBlitOffset(0.0F).setRenderType(ModRenderType.ICON).setFontDisplayMode(
+                            Font.DisplayMode.NORMAL);
+
+                    HealthBarRenderer.renderHealthBar(healthTracker, guiGraphics, livingEntity, 0, heightOffset + 8,
+                            barWidth, partialTick, config.barColors
+                    );
+                    HealthBarRenderer.renderHealthBarDecorations(healthTracker, guiGraphics, 0, heightOffset + 8,
+                            barWidth
+                    );
+                    guiGraphics.flush();
+
+                    poseStack.popPose();
                 }
-
-                poseStack.popPose();
             }
 
             return EventResult.DENY;
@@ -70,8 +96,8 @@ public class InLevelRenderingHandler {
         if (ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).scaleWithDistance) {
             double distanceSqr = dispatcher.distanceToSqr(targetEntity);
             double entityInteractionRange = player.entityInteractionRange();
-            double scaleRatio = Mth.clamp(
-                    (distanceSqr - Math.pow(entityInteractionRange / 2.0, 2.0)) / (Math.pow(entityInteractionRange * 2.0, 2.0) / 2.0), 0.0, 2.0);
+            double scaleRatio = Mth.clamp((distanceSqr - Math.pow(entityInteractionRange / 2.0, 2.0)) /
+                    (Math.pow(entityInteractionRange * 2.0, 2.0) / 2.0), 0.0, 2.0);
             plaqueScale *= (float) (1.0 + scaleRatio);
         }
 

@@ -4,10 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
@@ -20,6 +22,7 @@ public class MutableGuiGraphics extends GuiGraphics {
     private int color = -1;
     private int packedLight = 15728880;
     private float blitOffset;
+    private Font.DisplayMode fontDisplayMode = Font.DisplayMode.NORMAL;
 
     public MutableGuiGraphics(PoseStack poseStack) {
         this(poseStack.last().pose());
@@ -48,6 +51,33 @@ public class MutableGuiGraphics extends GuiGraphics {
     public MutableGuiGraphics setBlitOffset(float blitOffset) {
         this.blitOffset = blitOffset;
         return this;
+    }
+
+    public MutableGuiGraphics setFontDisplayMode(Font.DisplayMode fontDisplayMode) {
+        this.fontDisplayMode = fontDisplayMode;
+        return this;
+    }
+
+    @Override
+    public int drawString(Font font, @Nullable String text, int x, int y, int color, boolean dropShadow) {
+        if (text == null) {
+            return 0;
+        } else {
+            int stringWidth = font.drawInBatch(text, x, y, this.color, dropShadow, this.pose().last().pose(),
+                    this.bufferSource(), this.fontDisplayMode, 0, this.packedLight, font.isBidirectional()
+            );
+            this.flush();
+            return stringWidth;
+        }
+    }
+
+    @Override
+    public int drawString(Font font, FormattedCharSequence text, int x, int y, int color, boolean dropShadow) {
+        int stringWidth = font.drawInBatch(text, x, y, this.color, dropShadow, this.pose().last().pose(),
+                this.bufferSource(), this.fontDisplayMode, 0, this.packedLight
+        );
+        this.flush();
+        return stringWidth;
     }
 
     @Override

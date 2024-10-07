@@ -80,9 +80,9 @@ public class InLevelRenderingHandler {
                         heightOffset += config.offsetHeight;
 
                         if (config.behindWalls) {
-                            renderHealthBar(poseStack, partialTick, 15728880, healthTracker, livingEntity, heightOffset,
-                                    minecraft.font, CustomGuiGraphics::createSeeThrough,
-                                    RenderType.textBackgroundSeeThrough()
+                            renderHealthBar(poseStack, partialTick, config.fullBrightness ? 15728880 : packedLight,
+                                    healthTracker, livingEntity, heightOffset, minecraft.font,
+                                    CustomGuiGraphics::createSeeThrough, RenderType.textBackgroundSeeThrough()
                             );
                         }
 

@@ -55,7 +55,7 @@ public class DamageValueParticle extends Particle {
         poseStack.translate(x, y, z);
         poseStack.mulPose(quaternion);
         poseStack.scale(0.025F, -0.025F, 0.025F);
-        ClientConfig.DamageValues damageValues = ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).world.damageValues;
+        ClientConfig.DamageValues damageValues = ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).level.damageValues;
         GuiRenderingHandler.drawDamageNumber(poseStack, bufferSource, font, this.damageValue, 0, 0, 15728880,
                 damageValues
         );

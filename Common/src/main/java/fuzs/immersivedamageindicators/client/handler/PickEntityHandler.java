@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
@@ -80,7 +81,8 @@ public class PickEntityHandler {
         );
         AABB aABB = entity.getBoundingBox().expandTowards(viewVector.scale(interactionRange)).inflate(1.0, 1.0, 1.0);
         EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(entity, eyePosition, vec3, aABB,
-                entityX -> !entityX.isSpectator() && entityX.isPickable(), interactionRangeSqr
+                entityX -> (entityX instanceof LivingEntity || entityX instanceof EnderDragonPart) &&
+                        !entityX.isSpectator() && entityX.isPickable(), interactionRangeSqr
         );
         return entityHitResult != null && entityHitResult.getLocation().distanceToSqr(eyePosition) <
                 distanceToHitResult ? GameRenderer.filterHitResult(entityHitResult, eyePosition,

@@ -19,14 +19,9 @@ import net.minecraft.world.scores.Team;
 public class EntityVisibilityHelper {
 
     public static boolean isEntityVisible(Level level, LivingEntity livingEntity, Player player, float partialTicks, EntityRenderDispatcher entityRenderDispatcher, boolean mustBePicked) {
-        if (mustBePicked || ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).pickedEntity) {
-            if (livingEntity == PickEntityHandler.getCrosshairPickEntity()) {
-                mustBePicked = true;
-            } else {
-                return false;
-            }
-        }
-        if (!shouldShowName(livingEntity)) {
+        if (mustBePicked && livingEntity != PickEntityHandler.getCrosshairPickEntity()) {
+            return false;
+        } else if (!shouldShowName(livingEntity)) {
             // run this earlier than vanilla to avoid raytracing if not necessary
             return false;
         } else {
@@ -85,7 +80,7 @@ public class EntityVisibilityHelper {
     }
 
     private static int getMaxRenderDistanceSqr(Level level, LivingEntity livingEntity, Player player, float partialTicks) {
-        int maxRenderDistance = ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).maxRenderDistance;
+        int maxRenderDistance = ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).level.maxRenderDistance;
         if (livingEntity.isDiscrete()) maxRenderDistance /= 2;
         // use this instead of LivingEntity::hasLineOfSight, so we can look through transparent blocks like glass
         if (pickVisual(level, livingEntity, player, partialTicks).getType() != HitResult.Type.MISS) {

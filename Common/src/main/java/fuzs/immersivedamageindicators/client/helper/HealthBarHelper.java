@@ -24,13 +24,13 @@ public class HealthBarHelper {
     }
 
     public static int getBarWidth(ClientConfig.BarConfig config, HealthTracker healthTracker) {
-        int barScale = config.scaleBarWidthByHealth ? getBarScaleFromHealth(healthTracker.getHealth()) - 2 : 0;
+        int barScale = config.scaleBarWidthByHealth ? getBarScaleFromHealth(healthTracker.getData().maxHealth()) - 2 : 0;
         barScale = Math.max(barScale, 0) + config.healthBarWidth;
         return getBarWidthByScale(Mth.clamp(barScale, 1, 4));
     }
 
     public static int getBarWidthByScale(int scale) {
-        // the texture width is 182 which we split into 45*4+2
+        // the vanilla texture width is 182 which we split into 45*4+2 for scaling
         return 45 * scale + 2;
     }
 
@@ -53,6 +53,7 @@ public class HealthBarHelper {
                     case AMBIENT, MISC -> barColors.ambientColor;
                     case WATER_AMBIENT, WATER_CREATURE, UNDERGROUND_WATER_CREATURE, AXOLOTLS -> barColors.aquaticColor;
                     case CREATURE -> barColors.friendlyColor;
+                    // this can be extended on NeoForge, so we need a default branch
                     default -> barColors.miscColor;
                 };
             }

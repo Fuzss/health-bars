@@ -24,7 +24,8 @@ public final class ModRenderType extends RenderType {
     });
     /**
      * Copied from {@link #TEXT_SEE_THROUGH}, although {@link #RENDERTYPE_SOLID_SHADER} is used, as
-     * {@link #RENDERTYPE_TEXT_SEE_THROUGH_SHADER} does not seem to support depth.
+     * {@link #RENDERTYPE_TEXT_SEE_THROUGH_SHADER} does not seem to support depth. Unfortunately
+     * {@link #RENDERTYPE_SOLID_SHADER} messes up the colors when viewing textures from inside water.
      */
     public static final Function<ResourceLocation, RenderType> ICON_SEE_THROUGH = Util.memoize((resourceLocation) -> {
         return RenderType.create(ImmersiveDamageIndicators.id("icon_see_through").toString(),

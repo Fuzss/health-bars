@@ -1,21 +1,20 @@
 package fuzs.immersivedamageindicators.client.helper;
 
+import fuzs.immersivedamageindicators.ImmersiveDamageIndicators;
+import fuzs.immersivedamageindicators.config.ClientConfig;
 import fuzs.immersivedamageindicators.init.ModRegistry;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import org.jetbrains.annotations.Nullable;
 
 public class HealthTracker {
     static final int MAX_HEALTH_DELAY = 30;
     static final int MAX_HEALTH_DELAY_PROGRESS = 10;
     static final int MAX_HEALTH_DELAY_FREEZE_TICKS = 200;
 
-    @Nullable
-    private Component displayName;
-    private float maxHealth;
-    private int armorValue;
+    private EntityDataCache entityDataCache = EntityDataCache.EMPTY;
+    private float maxHealth = -1;
     private float health;
     private float lastHealth;
     private int healthDelay;
@@ -54,7 +53,7 @@ public class HealthTracker {
             this.healthDelayFreezeTicks--;
         }
         float health = Mth.clamp(livingEntity.getHealth(), 0.0F, livingEntity.getMaxHealth());
-        if (this.displayName == null) {
+        if (this.maxHealth == -1) {
             this.health = this.lastHealth = health;
         } else if (health != this.health) {
             this.lastHealth = this.getLastHealthProgress(1.0F);
@@ -68,25 +67,12 @@ public class HealthTracker {
             this.lastHealth = health;
             this.healthDelayFreezeTicks = MAX_HEALTH_DELAY_FREEZE_TICKS;
         }
-        this.displayName = livingEntity.getDisplayName();
         this.maxHealth = livingEntity.getMaxHealth();
-        this.armorValue = livingEntity.getArmorValue();
+        this.entityDataCache = EntityDataCache.of(livingEntity);
     }
 
-    public Component getDisplayName() {
-        return this.displayName != null ? this.displayName : CommonComponents.EMPTY;
-    }
-
-    public int getHealth() {
-        return Mth.ceil(this.health);
-    }
-
-    public int getMaxHealth() {
-        return Mth.ceil(this.maxHealth);
-    }
-
-    public int getArmorValue() {
-        return this.armorValue;
+    public EntityDataCache getData() {
+        return this.entityDataCache;
     }
 
     public float getHealthProgress() {
@@ -111,6 +97,20 @@ public class HealthTracker {
             return this.getLastHealthProgress(partialTick) / this.maxHealth;
         } else {
             return this.health / this.maxHealth;
+        }
+    }
+
+    public record EntityDataCache(Component displayName, int health, int maxHealth, int armorValue, double renderOffset) {
+        public static final EntityDataCache EMPTY = new EntityDataCache(CommonComponents.EMPTY, 0, 0, 0, 0.0F);
+
+        public static EntityDataCache of(LivingEntity livingEntity) {
+            ClientConfig.Gui config = ImmersiveDamageIndicators.CONFIG.get(ClientConfig.class).gui;
+            double renderOffset = config.mobRenderOffsets.<Double>getOptional(livingEntity.getType(), 0).orElse(0.0);
+            return new EntityDataCache(livingEntity.getDisplayName(), Mth.ceil(livingEntity.getHealth()), Mth.ceil(livingEntity.getMaxHealth()), livingEntity.getArmorValue(), renderOffset);
+        }
+
+        public Component getHealthComponent() {
+            return Component.literal(this.health + "/" + this.maxHealth);
         }
     }
 }

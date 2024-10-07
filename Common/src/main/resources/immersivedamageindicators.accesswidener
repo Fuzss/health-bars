@@ -6,3 +6,4 @@ accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   BAR_
 accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   BAR_PROGRESS_SPRITES    [Lnet/minecraft/resources/ResourceLocation;
 accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   OVERLAY_BACKGROUND_SPRITES  [Lnet/minecraft/resources/ResourceLocation;
 accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   OVERLAY_PROGRESS_SPRITES    [Lnet/minecraft/resources/ResourceLocation;
+accessible  method  net/minecraft/client/renderer/entity/EntityRenderer shouldShowName  (Lnet/minecraft/world/entity/Entity;)Z

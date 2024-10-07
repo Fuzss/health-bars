@@ -29,7 +29,7 @@ public class PickEntityHandler {
     }
 
     public static void onBeforeGameRender(Minecraft minecraft, GameRenderer gameRenderer, DeltaTracker deltaTracker) {
-        if (!HealthBars.CONFIG.get(ClientConfig.class).allowRendering.get()) return;
+        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get()) return;
         pick(minecraft, gameRenderer, deltaTracker.getGameTimeDeltaPartialTick(true));
     }
 

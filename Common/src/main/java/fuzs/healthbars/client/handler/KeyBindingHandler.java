@@ -25,7 +25,7 @@ public class KeyBindingHandler {
         context.registerKeyMapping(KeyBindingHandler.TOGGLE_KEY_MAPPING,
                 KeyActivationHandler.forGame((Minecraft minecraft) -> {
                     ModConfigSpec.ConfigValue<Boolean> enableRendering = HealthBars.CONFIG.get(
-                            ClientConfig.class).allowRendering;
+                            ClientConfig.class).anyRendering;
                     enableRendering.set(!enableRendering.get());
                     Component component = Component.translatable(KEY_STATUS_MESSAGE,
                             enableRendering.get() ? ON_COMPONENT : OFF_COMPONENT

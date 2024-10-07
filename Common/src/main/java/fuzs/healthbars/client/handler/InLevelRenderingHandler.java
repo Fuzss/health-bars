@@ -37,7 +37,10 @@ public class InLevelRenderingHandler {
     @SuppressWarnings("ConstantValue")
     public static EventResult onRenderNameTag(Entity entity, DefaultedValue<Component> content, EntityRenderer<?> entityRenderer, PoseStack poseStack, int packedLight, float partialTick) {
 
-        if (!HealthBars.CONFIG.get(ClientConfig.class).allowRendering.get()) return EventResult.PASS;
+        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get() || !HealthBars.CONFIG.get(
+                ClientConfig.class).levelRendering) {
+            return EventResult.PASS;
+        }
 
         if (isRenderingInInventory) {
 
@@ -76,19 +79,15 @@ public class InLevelRenderingHandler {
                         }
                         heightOffset += config.offsetHeight;
 
-                        if (config.fullBrightness) {
-                            packedLight = 15728880;
-                        }
-
                         if (config.behindWalls) {
-                            renderHealthBar(poseStack, partialTick, packedLight, healthTracker, livingEntity,
-                                    heightOffset, minecraft.font, CustomGuiGraphics::createSeeThrough,
+                            renderHealthBar(poseStack, partialTick, 15728880, healthTracker, livingEntity, heightOffset,
+                                    minecraft.font, CustomGuiGraphics::createSeeThrough,
                                     RenderType.textBackgroundSeeThrough()
                             );
                         }
 
-                        renderHealthBar(poseStack, partialTick, packedLight, healthTracker, livingEntity, heightOffset,
-                                minecraft.font, CustomGuiGraphics::create,
+                        renderHealthBar(poseStack, partialTick, config.fullBrightness ? 15728880 : packedLight,
+                                healthTracker, livingEntity, heightOffset, minecraft.font, CustomGuiGraphics::create,
                                 !config.behindWalls ? RenderType.textBackground() : null
                         );
 

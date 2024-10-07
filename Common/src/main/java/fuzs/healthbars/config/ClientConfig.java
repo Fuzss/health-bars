@@ -15,68 +15,53 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import java.util.List;
 
 public class ClientConfig implements ConfigCore {
+    static final String KEY_GENERAL_CATEGORY = "general";
+
     @Config(description = "Options controlling health bars rendered as part of the gui.")
     public final Gui gui = new Gui();
     @Config(description = "Options controlling health bars rendered above entities in the level.")
     public final Level level = new Level();
+    @Config(description = "Allow rendering health bars as part of the gui.")
+    public boolean guiRendering = true;
+    @Config(description = "Allow rendering health bars above entities in the level.")
+    public boolean levelRendering = true;
     @Config(
-            description = {
-                    "The raytrace range for finding a picked entity.",
-                    "Setting this to -1 will make it use the player entity interaction range, which is 3 in survival."
-            }
+            category = KEY_GENERAL_CATEGORY, description = {
+            "The raytrace range for finding a picked entity.",
+            "Setting this to -1 will make it use the player entity interaction range, which is 3 in survival."
+    }
     )
     @Config.IntRange(min = -1, max = 128)
     public int pickedEntityInteractionRange = 16;
     @Config(
-            description = {
-                    "Coyote time in seconds after which a no longer picked entity will still show the health bar.",
-                    "Set to -1 to keep the old entity until a new one is picked by the crosshair."
-            }
+            category = KEY_GENERAL_CATEGORY, description = {
+            "Coyote time in seconds after which a no longer picked entity will still show the health bar.",
+            "Set to -1 to keep the old entity until a new one is picked by the crosshair."
+    }
     )
     @Config.IntRange(min = -1)
     public int pickedEntityDelay = 2;
-    @Config(description = "Hide health bar when the mob has full health.")
+    @Config(category = KEY_GENERAL_CATEGORY, description = "Hide health bar when the mob has full health.")
     public boolean hideAtFullHealth = false;
     @Config(
+            category = KEY_GENERAL_CATEGORY,
             name = "no_health_bar_mobs",
             description = {"Entities that may never show a health bar.", ConfigDataSet.CONFIG_DESCRIPTION}
     )
     List<String> noHealthBarMobsRaw = KeyedValueProvider.toString(Registries.ENTITY_TYPE, EntityType.ARMOR_STAND);
-    @Config(
-            name = "mob_selectors",
-            description = {"Built-in entity groups for choosing what mobs to render health for."}
-    )
-    @Config.AllowedValues(
-            values = {
-                    "minecraft:all",
-                    "minecraft:tamed",
-                    "minecraft:tamed_only_owner",
-                    "minecraft:player",
-                    "minecraft:monster",
-                    "minecraft:boss",
-                    "minecraft:mount"
-            }
-    )
-    List<String> mobSelectorsRaw = KeyedValueProvider.toString(MobSelector.class, MobSelector.ALL);
 
-    public ModConfigSpec.ConfigValue<Boolean> allowRendering;
+    public ModConfigSpec.ConfigValue<Boolean> anyRendering;
     public ConfigDataSet<EntityType<?>> noHealthBarMobs;
-    public ConfigDataSet<MobSelector> mobSelectors;
 
     @Override
     public void addToBuilder(ModConfigSpec.Builder builder, ValueCallback callback) {
-        this.allowRendering = builder.comment(
-                "Are health bars enabled, toggleable in-game via the dedicated keybinding.").define("allow_rendering",
-                true
-        );
+        this.anyRendering = builder.comment("Are health bars enabled, toggleable in-game via the dedicated keybinding.")
+                .define("any_rendering", true);
     }
 
     @Override
     public void afterConfigReload() {
         this.noHealthBarMobs = ConfigDataSet.from(Registries.ENTITY_TYPE, this.noHealthBarMobsRaw);
-        this.mobSelectors = ConfigDataSet.from(KeyedValueProvider.enumConstants(MobSelector.class),
-                this.mobSelectorsRaw
-        );
     }
 
     public boolean isEntityAllowed(LivingEntity livingEntity) {
@@ -85,13 +70,7 @@ public class ClientConfig implements ConfigCore {
         } else if (this.hideAtFullHealth && livingEntity.getHealth() >= livingEntity.getMaxHealth()) {
             return false;
         } else {
-            for (MobSelector mobSelector : this.mobSelectors) {
-                if (mobSelector.isValid(livingEntity)) {
-                    return true;
-                }
-            }
-
-            return false;
+            return true;
         }
     }
 

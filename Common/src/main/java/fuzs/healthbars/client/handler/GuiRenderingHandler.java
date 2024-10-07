@@ -27,20 +27,23 @@ import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 public class GuiRenderingHandler {
-    static final int FRAME_SIZE = 42;
-    static final int FRAME_BORDER_SIZE = 4;
+    static final int MOB_SELECTION_SIZE = 42;
+    static final int MOB_SELECTION_BORDER_SIZE = 4;
     static final float MOB_TITLE_SCALE = 1.5F;
     public static final int GUI_SPRITE_SIZE = 9;
     public static final int TEXT_TO_SPRITE_GAP = 2;
-    private static final ResourceLocation HOTBAR_OFFHAND_LEFT_LOCATION = HealthBars.id("mob_selection");
+    public static final ResourceLocation MOB_SELECTION_SPRITE = HealthBars.id("mob_selection");
     public static final ResourceLocation HEART_CONTAINER_SPRITE = ResourceLocation.withDefaultNamespace(
             "hud/heart/container");
     public static final ResourceLocation HEART_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/heart/full");
-    private static final ResourceLocation ARMOR_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/armor_full");
+    public static final ResourceLocation ARMOR_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/armor_full");
 
     public static void onAfterRenderGui(Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 
-        if (!HealthBars.CONFIG.get(ClientConfig.class).allowRendering.get()) return;
+        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get() || !HealthBars.CONFIG.get(
+                ClientConfig.class).guiRendering) {
+            return;
+        }
 
         if (PickEntityHandler.getCrosshairPickEntity() instanceof LivingEntity livingEntity && HealthBars.CONFIG.get(
                 ClientConfig.class).isEntityAllowed(livingEntity)) {
@@ -56,7 +59,7 @@ public class GuiRenderingHandler {
                 int barWidth = HealthBarHelper.getBarWidth(config, healthTracker);
                 AnchorPoint anchorPoint = config.anchorPoint;
                 AnchorPoint.Positioner positioner = anchorPoint.createPositioner(guiGraphics.guiWidth(),
-                        guiGraphics.guiHeight(), FRAME_SIZE + 5 + barWidth, FRAME_SIZE
+                        guiGraphics.guiHeight(), MOB_SELECTION_SIZE + 5 + barWidth, MOB_SELECTION_SIZE
                 );
                 MutableInt posX = new MutableInt(positioner.getPosX(config.offsetWidth));
                 MutableInt posY = new MutableInt(positioner.getPosY(config.offsetHeight));
@@ -74,14 +77,14 @@ public class GuiRenderingHandler {
                     if (anchorPoint.isRight()) {
                         posX.add(barWidth + 5);
                     }
-                    guiGraphics.blitSprite(HOTBAR_OFFHAND_LEFT_LOCATION, posX.intValue(), posY.intValue(), FRAME_SIZE,
-                            FRAME_SIZE
+                    guiGraphics.blitSprite(MOB_SELECTION_SPRITE, posX.intValue(), posY.intValue(), MOB_SELECTION_SIZE,
+                            MOB_SELECTION_SIZE
                     );
                     renderEntityDisplay(guiGraphics, posX, posY, healthTracker, livingEntity);
                     if (anchorPoint.isRight()) {
                         posX.subtract(barWidth + 5);
                     } else {
-                        posX.add(FRAME_SIZE + 5);
+                        posX.add(MOB_SELECTION_SIZE + 5);
                     }
                 }
 
@@ -101,7 +104,7 @@ public class GuiRenderingHandler {
                 }
 
                 RenderSystem.enableBlend();
-                posY.add(FRAME_SIZE / 2);
+                posY.add(MOB_SELECTION_SIZE / 2);
                 renderHealthBar(guiGraphics, posX, posY, partialTick, font, healthTracker, livingEntity, barWidth);
                 if (config.renderAttributeComponents) {
                     posY.add(8);
@@ -132,11 +135,11 @@ public class GuiRenderingHandler {
         int scale = (int) (Math.min(scaleWidth, scaleHeight) * 30.0F);
         float yOffset = 0.5F - (scaleHeight - 0.8F) * 0.15F + (float) healthTracker.getData().renderOffset();
 
-        int x1 = posX.intValue() + FRAME_BORDER_SIZE;
-        int y1 = posY.intValue() + FRAME_BORDER_SIZE;
-        int x2 = posX.intValue() + FRAME_SIZE - FRAME_BORDER_SIZE;
-        int y2 = posY.intValue() + FRAME_SIZE - FRAME_BORDER_SIZE;
-        int mouseX = posX.intValue() + FRAME_SIZE / 2 + (70 - FRAME_SIZE / 2) * (HealthBars.CONFIG.get(
+        int x1 = posX.intValue() + MOB_SELECTION_BORDER_SIZE;
+        int y1 = posY.intValue() + MOB_SELECTION_BORDER_SIZE;
+        int x2 = posX.intValue() + MOB_SELECTION_SIZE - MOB_SELECTION_BORDER_SIZE;
+        int y2 = posY.intValue() + MOB_SELECTION_SIZE - MOB_SELECTION_BORDER_SIZE;
+        int mouseX = posX.intValue() + MOB_SELECTION_SIZE / 2 + (70 - MOB_SELECTION_SIZE / 2) * (HealthBars.CONFIG.get(
                 ClientConfig.class).gui.anchorPoint.isRight() ? -1 : 1);
         int mouseY = posY.intValue() + 10;
 

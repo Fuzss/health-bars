@@ -1,12 +1,10 @@
 package fuzs.healthbars.client;
 
-import fuzs.healthbars.client.handler.GuiRenderingHandler;
-import fuzs.healthbars.client.handler.HealthTrackerHandler;
-import fuzs.healthbars.client.handler.InLevelRenderingHandler;
-import fuzs.healthbars.client.handler.PickEntityHandler;
+import fuzs.healthbars.client.handler.*;
 import fuzs.healthbars.client.particle.DamageValueParticle;
 import fuzs.healthbars.init.ModRegistry;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
+import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.core.v1.context.ParticleProvidersContext;
 import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
 import fuzs.puzzleslib.api.client.event.v1.gui.RenderGuiEvents;
@@ -36,5 +34,10 @@ public class HealthBarsClient implements ClientModConstructor {
         context.registerParticleProvider(ModRegistry.DAMAGE_VALUE_PARTICLE_TYPE.value(),
                 new DamageValueParticle.Provider()
         );
+    }
+
+    @Override
+    public void onRegisterKeyMappings(KeyMappingsContext context) {
+        KeyBindingHandler.onRegisterKeyMappings(context);
     }
 }

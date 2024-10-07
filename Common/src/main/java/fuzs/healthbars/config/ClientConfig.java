@@ -2,11 +2,15 @@ package fuzs.healthbars.config;
 
 import fuzs.puzzleslib.api.config.v3.Config;
 import fuzs.puzzleslib.api.config.v3.ConfigCore;
+import fuzs.puzzleslib.api.config.v3.ValueCallback;
 import fuzs.puzzleslib.api.config.v3.serialization.ConfigDataSet;
+import fuzs.puzzleslib.api.config.v3.serialization.KeyedValueProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
 
@@ -22,15 +26,74 @@ public class ClientConfig implements ConfigCore {
             }
     )
     @Config.IntRange(min = -1, max = 128)
-    public int pickedEntityInteractionRange = -1;
+    public int pickedEntityInteractionRange = 16;
     @Config(
             description = {
-                    "Coyote time in seconds after which a no longer picked entity will still show the plaques.",
+                    "Coyote time in seconds after which a no longer picked entity will still show the health bar.",
                     "Set to -1 to keep the old entity until a new one is picked by the crosshair."
             }
     )
     @Config.IntRange(min = -1)
     public int pickedEntityDelay = 2;
+    @Config(description = "Hide health bar when the mob has full health.")
+    public boolean hideAtFullHealth = false;
+    @Config(
+            name = "no_health_bar_mobs",
+            description = {"Entities that may never show a health bar.", ConfigDataSet.CONFIG_DESCRIPTION}
+    )
+    List<String> noHealthBarMobsRaw = KeyedValueProvider.toString(Registries.ENTITY_TYPE, EntityType.ARMOR_STAND);
+    @Config(
+            name = "mob_selectors",
+            description = {"Built-in entity groups for choosing what mobs to render health for."}
+    )
+    @Config.AllowedValues(
+            values = {
+                    "minecraft:all",
+                    "minecraft:tamed",
+                    "minecraft:tamed_only_owner",
+                    "minecraft:player",
+                    "minecraft:monster",
+                    "minecraft:boss",
+                    "minecraft:mount"
+            }
+    )
+    List<String> mobSelectorsRaw = KeyedValueProvider.toString(MobSelector.class, MobSelector.ALL);
+
+    public ModConfigSpec.ConfigValue<Boolean> allowRendering;
+    public ConfigDataSet<EntityType<?>> noHealthBarMobs;
+    public ConfigDataSet<MobSelector> mobSelectors;
+
+    @Override
+    public void addToBuilder(ModConfigSpec.Builder builder, ValueCallback callback) {
+        this.allowRendering = builder.comment(
+                "Are health bars enabled, toggleable in-game via the dedicated keybinding.").define("allow_rendering",
+                true
+        );
+    }
+
+    @Override
+    public void afterConfigReload() {
+        this.noHealthBarMobs = ConfigDataSet.from(Registries.ENTITY_TYPE, this.noHealthBarMobsRaw);
+        this.mobSelectors = ConfigDataSet.from(KeyedValueProvider.enumConstants(MobSelector.class),
+                this.mobSelectorsRaw
+        );
+    }
+
+    public boolean isEntityAllowed(LivingEntity livingEntity) {
+        if (this.noHealthBarMobs.contains(livingEntity.getType())) {
+            return false;
+        } else if (this.hideAtFullHealth && livingEntity.getHealth() >= livingEntity.getMaxHealth()) {
+            return false;
+        } else {
+            for (MobSelector mobSelector : this.mobSelectors) {
+                if (mobSelector.isValid(livingEntity)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
 
     public static abstract class BarConfig implements ConfigCore {
         @Config(description = "Options controlling how bars render for different kinds of mobs.")
@@ -84,17 +147,17 @@ public class ClientConfig implements ConfigCore {
     }
 
     public static class Level extends BarConfig {
-        @Config(description = "Show plaques for the entity picked by the crosshair only.")
+        @Config(description = "Show health bars for the entity picked by the crosshair only.")
         public boolean pickedEntity = false;
-        @Config(description = "Custom scale for rendering plaques.")
+        @Config(description = "Custom scale for rendering health bars.")
         @Config.DoubleRange(min = 0.05, max = 2.0)
-        public double plaqueScale = 0.5;
+        public double renderScale = 0.5;
         @Config(
-                description = "Dynamically increase plaque size the further away the camera is to simplify readability."
+                description = "Dynamically increase health bar size the further away the camera is to simplify readability."
         )
         public boolean scaleWithDistance = true;
         @Config(
-                description = "Distance to the mob at which plaques will still be visible. The distance is halved when the mob is crouching."
+                description = "Distance to the mob at which health bars will still be visible. The distance is halved when the mob is crouching."
         )
         @Config.IntRange(min = 0)
         public int maxRenderDistance = 96;
@@ -104,13 +167,13 @@ public class ClientConfig implements ConfigCore {
         public boolean renderHealthComponent = true;
         @Config(description = "Allow rendering the heart sprite as part of the health text.")
         public boolean renderSpriteComponent = true;
-        @Config(description = "Show a black background box behind plaques. Disabled by default as it doesn't work with shaders.")
+        @Config(description = "Show a black transparent background behind health bar text.")
         public boolean renderBackground = false;
-        @Config(description = "Always render plaques with full brightness to be most visible, ignoring local lighting conditions.")
-        public FullBrightRendering fullBrightness = FullBrightRendering.UNOBSTRUCTED;
+        @Config(description = "Always render health bars with full brightness to be most visible, ignoring local lighting conditions.")
+        public boolean fullBrightness = true;
         @Config(description = "Offset in pixels on the vertical axis from default position.")
         public int offsetHeight = 0;
-        @Config(description = "Show plaques from mobs obstructed by walls the player cannot see through, similar to the nameplates of other players.")
+        @Config(description = "Show health bars from mobs obstructed by walls the player cannot see through, similar to the nameplates of other players.")
         public boolean behindWalls = true;
 
         public Level() {
@@ -153,11 +216,5 @@ public class ClientConfig implements ConfigCore {
         ALL,
         COLORED,
         NONE
-    }
-
-    public enum FullBrightRendering {
-        ALWAYS,
-        UNOBSTRUCTED,
-        NEVER
     }
 }

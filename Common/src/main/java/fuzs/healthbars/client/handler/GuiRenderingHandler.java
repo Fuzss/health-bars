@@ -40,7 +40,10 @@ public class GuiRenderingHandler {
 
     public static void onAfterRenderGui(Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 
-        if (PickEntityHandler.getCrosshairPickEntity() instanceof LivingEntity livingEntity) {
+        if (!HealthBars.CONFIG.get(ClientConfig.class).allowRendering.get()) return;
+
+        if (PickEntityHandler.getCrosshairPickEntity() instanceof LivingEntity livingEntity && HealthBars.CONFIG.get(
+                ClientConfig.class).isEntityAllowed(livingEntity)) {
 
             Minecraft minecraft = gui.minecraft;
             Font font = minecraft.font;
@@ -99,9 +102,7 @@ public class GuiRenderingHandler {
 
                 RenderSystem.enableBlend();
                 posY.add(FRAME_SIZE / 2);
-                renderHealthBar(guiGraphics, posX, posY, partialTick, font, healthTracker, livingEntity,
-                        barWidth
-                );
+                renderHealthBar(guiGraphics, posX, posY, partialTick, font, healthTracker, livingEntity, barWidth);
                 if (config.renderAttributeComponents) {
                     posY.add(8);
                     if (anchorPoint.isRight()) {
@@ -173,8 +174,8 @@ public class GuiRenderingHandler {
 
     private static void renderHealthBar(GuiGraphics guiGraphics, MutableInt posX, MutableInt posY, float partialTick, Font font, HealthTracker healthTracker, LivingEntity livingEntity, int barWidth) {
         ClientConfig.Gui config = HealthBars.CONFIG.get(ClientConfig.class).gui;
-        HealthBarRenderHelper.renderHealthBar(healthTracker, guiGraphics, livingEntity,
-                posX.intValue() - 1 + barWidth / 2, posY.intValue(), barWidth, partialTick, config.barColors
+        HealthBarRenderHelper.renderHealthBar(guiGraphics, posX.intValue() - 1 + barWidth / 2, posY.intValue(),
+                partialTick, healthTracker, livingEntity, barWidth, config.barColors
         );
         if (config.damageValues.renderDamageValues) {
             drawDamageNumber(guiGraphics.pose(), guiGraphics.bufferSource(), font, healthTracker.getHealthDelta(),

@@ -20,7 +20,7 @@ import org.joml.Matrix4f;
 
 public class HealthBarRenderHelper {
 
-    public static void renderHealthBar(HealthTracker healthTracker, GuiGraphics guiGraphics, LivingEntity entity, int posX, int posY, int barWidth, float partialTick, ClientConfig.BarColors barColors) {
+    public static void renderHealthBar(GuiGraphics guiGraphics, int posX, int posY, float partialTick, HealthTracker healthTracker, LivingEntity entity, int barWidth, ClientConfig.BarColors barColors) {
 
         float barProgress = healthTracker.getBarProgress(partialTick);
         float backgroundBarProgress = healthTracker.getBackgroundBarProgress(partialTick);

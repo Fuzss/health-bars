@@ -1,4 +1,4 @@
-package fuzs.healthbars.client.helper;
+package fuzs.healthbars.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -18,64 +18,38 @@ import org.joml.Matrix4f;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * A hacky extension to {@link GuiGraphics} that allows setting a custom render type and a few other properties.
+ */
 public class CustomGuiGraphics extends GuiGraphics {
-    @Nullable
-    private Function<ResourceLocation, RenderType> renderType;
-    private int alpha = 0xFF;
-    private int packedLight = 15728880;
-    private float blitOffset;
-    private Font.DisplayMode fontDisplayMode = Font.DisplayMode.NORMAL;
+    private final Function<ResourceLocation, RenderType> renderType;
+    private final int alpha;
+    private final int packedLight;
+    private final float blitOffset;
+    private final Font.DisplayMode fontDisplayMode;
 
-    public CustomGuiGraphics(PoseStack poseStack) {
-        this(poseStack.last().pose());
+    public CustomGuiGraphics(PoseStack poseStack, Function<ResourceLocation, RenderType> renderType, int alpha, int packedLight, float blitOffset, Font.DisplayMode fontDisplayMode) {
+        this(poseStack.last().pose(), renderType, alpha, packedLight, blitOffset, fontDisplayMode);
     }
 
-    public CustomGuiGraphics(Matrix4f matrix4f) {
+    public CustomGuiGraphics(Matrix4f matrix4f, Function<ResourceLocation, RenderType> renderType, int alpha, int packedLight, float blitOffset, Font.DisplayMode fontDisplayMode) {
         super(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
+        this.renderType = renderType;
+        this.alpha = alpha;
+        this.packedLight = packedLight;
+        this.blitOffset = blitOffset;
+        this.fontDisplayMode = fontDisplayMode;
         this.pose().mulPose(matrix4f);
     }
 
-    public static CustomGuiGraphics createSeeThrough(PoseStack poseStack) {
-        CustomGuiGraphics guiGraphics = new CustomGuiGraphics(poseStack);
-        guiGraphics.renderType = ModRenderType.ICON_SEE_THROUGH;
-        guiGraphics.alpha = 0x20;
-        guiGraphics.blitOffset = 0.01F;
-        guiGraphics.fontDisplayMode = Font.DisplayMode.SEE_THROUGH;
-        return guiGraphics;
+    public static CustomGuiGraphics createSeeThrough(PoseStack poseStack, int packedLight) {
+        return new CustomGuiGraphics(poseStack, ModRenderType.ICON_SEE_THROUGH, 0x20, packedLight, 0.01F,
+                Font.DisplayMode.SEE_THROUGH
+        );
     }
 
-    public int getPackedLight() {
-        return this.packedLight;
-    }
-
-    public CustomGuiGraphics setRenderType(Function<ResourceLocation, RenderType> renderType) {
-        this.renderType = renderType;
-        return this;
-    }
-
-    public CustomGuiGraphics setAlpha(float alpha) {
-        this.alpha = FastColor.as8BitChannel(alpha);
-        return this;
-    }
-
-    public CustomGuiGraphics setPackedLight(int packedLight) {
-        this.packedLight = packedLight;
-        return this;
-    }
-
-    public CustomGuiGraphics setBlitOffset(float blitOffset) {
-        this.blitOffset = blitOffset;
-        return this;
-    }
-
-    public CustomGuiGraphics addBlitOffset(float blitOffset) {
-        this.blitOffset += blitOffset;
-        return this;
-    }
-
-    public CustomGuiGraphics setFontDisplayMode(Font.DisplayMode fontDisplayMode) {
-        this.fontDisplayMode = fontDisplayMode;
-        return this;
+    public static CustomGuiGraphics create(PoseStack poseStack, int packedLight) {
+        return new CustomGuiGraphics(poseStack, ModRenderType.ICON, 0xFF, packedLight, 0.0F, Font.DisplayMode.NORMAL);
     }
 
     @Override
@@ -106,7 +80,8 @@ public class CustomGuiGraphics extends GuiGraphics {
         Objects.requireNonNull(this.renderType, "render type is null");
         RenderSystem.enableBlend();
         Matrix4f matrix4f = this.pose().last().pose();
-        VertexConsumer bufferBuilder = ((MultiBufferSource) this.bufferSource()).getBuffer(this.renderType.apply(atlasLocation));
+        VertexConsumer bufferBuilder = ((MultiBufferSource) this.bufferSource()).getBuffer(
+                this.renderType.apply(atlasLocation));
         bufferBuilder.addVertex(matrix4f, x1, y1, this.blitOffset)
                 .setColor(FastColor.ARGB32.color(this.alpha, -1))
                 .setUv(minU, minV)
@@ -131,7 +106,8 @@ public class CustomGuiGraphics extends GuiGraphics {
         Objects.requireNonNull(this.renderType, "render type is null");
         RenderSystem.enableBlend();
         Matrix4f matrix4f = this.pose().last().pose();
-        VertexConsumer bufferBuilder = ((MultiBufferSource) this.bufferSource()).getBuffer(this.renderType.apply(atlasLocation));
+        VertexConsumer bufferBuilder = ((MultiBufferSource) this.bufferSource()).getBuffer(
+                this.renderType.apply(atlasLocation));
         bufferBuilder.addVertex(matrix4f, x1, y1, this.blitOffset).setUv(minU, minV).setColor(red, green, blue,
                 this.alpha / 255.0F
         ).setLight(this.packedLight);

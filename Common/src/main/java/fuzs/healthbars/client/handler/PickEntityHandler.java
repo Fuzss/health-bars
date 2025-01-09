@@ -2,10 +2,12 @@ package fuzs.healthbars.client.handler;
 
 import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.config.ClientConfig;
+import fuzs.puzzleslib.api.core.v1.CommonAbstractions;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.profiling.Profiler;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.EnderDragonPart;
@@ -39,7 +41,7 @@ public class PickEntityHandler {
     private static void pick(Minecraft minecraft, GameRenderer gameRenderer, float partialTick) {
         Entity cameraEntity = minecraft.getCameraEntity();
         if (cameraEntity != null && minecraft.level != null && minecraft.player != null) {
-            minecraft.getProfiler().push("pick");
+            Profiler.get().push("pick");
             double blockInteractionRange = minecraft.player.blockInteractionRange();
             double entityInteractionRange = minecraft.player.entityInteractionRange();
             int interactionRange = HealthBars.CONFIG.get(
@@ -49,16 +51,13 @@ public class PickEntityHandler {
             }
             HitResult hitResult = pick(cameraEntity, blockInteractionRange, entityInteractionRange, partialTick);
             if (hitResult instanceof EntityHitResult entityHitResult) {
-                Entity entity = entityHitResult.getEntity();
-                if (entity instanceof EnderDragonPart enderDragonPart) {
-                    entity = enderDragonPart.parentMob;
-                }
+                Entity entity = CommonAbstractions.INSTANCE.getPartEntityParent(entityHitResult.getEntity());
                 crosshairPickEntity = new WeakReference<>(entity);
                 pickDelay = HealthBars.CONFIG.get(ClientConfig.class).pickedEntityDelay * 20;
             } else if (pickDelay == 0) {
                 crosshairPickEntity = new WeakReference<>(null);
             }
-            minecraft.getProfiler().pop();
+            Profiler.get().pop();
         }
     }
 

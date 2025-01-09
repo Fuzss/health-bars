@@ -18,22 +18,30 @@ import net.minecraft.world.scores.Team;
 
 public class EntityVisibilityHelper {
 
-    public static boolean isEntityVisible(Level level, LivingEntity livingEntity, Player player, float partialTicks, EntityRenderDispatcher entityRenderDispatcher, boolean mustBePicked) {
+    public static boolean isEntityVisible(Minecraft minecraft, LivingEntity livingEntity, float partialTick, boolean mustBePicked) {
+        return isEntityVisible(minecraft.level,
+                livingEntity,
+                minecraft.player,
+                partialTick,
+                minecraft.getEntityRenderDispatcher(),
+                mustBePicked);
+    }
+
+    public static boolean isEntityVisible(Level level, LivingEntity livingEntity, Player player, float partialTick, EntityRenderDispatcher entityRenderDispatcher, boolean mustBePicked) {
         if (mustBePicked && livingEntity != PickEntityHandler.getCrosshairPickEntity()) {
             return false;
         } else if (!shouldShowName(livingEntity)) {
             // run this earlier than vanilla to avoid raytracing if not necessary
             return false;
         } else {
-            return mustBePicked || entityRenderDispatcher.distanceToSqr(livingEntity) < getMaxRenderDistanceSqr(level, livingEntity,
-                    player, partialTicks
-            );
+            return mustBePicked || entityRenderDispatcher.distanceToSqr(livingEntity) <
+                    getMaxRenderDistanceSqr(level, livingEntity, player, partialTick);
         }
     }
 
     /**
      * Mostly copied from
-     * {@link net.minecraft.client.renderer.entity.LivingEntityRenderer#shouldShowName(LivingEntity)}.
+     * {@link net.minecraft.client.renderer.entity.LivingEntityRenderer#shouldShowName(LivingEntity, double)}.
      */
     private static boolean shouldShowName(LivingEntity entity) {
         Minecraft minecraft = Minecraft.getInstance();
@@ -46,10 +54,10 @@ public class EntityVisibilityHelper {
                 return switch (entityTeam.getNameTagVisibility()) {
                     case ALWAYS -> isVisible;
                     case NEVER -> false;
-                    case HIDE_FOR_OTHER_TEAMS -> playerTeam == null ? isVisible : entityTeam.isAlliedTo(playerTeam) &&
-                            (entityTeam.canSeeFriendlyInvisibles() || isVisible);
-                    case HIDE_FOR_OWN_TEAM -> playerTeam == null ? isVisible : !entityTeam.isAlliedTo(playerTeam) &&
-                            isVisible;
+                    case HIDE_FOR_OTHER_TEAMS -> playerTeam == null ? isVisible :
+                            entityTeam.isAlliedTo(playerTeam) && (entityTeam.canSeeFriendlyInvisibles() || isVisible);
+                    case HIDE_FOR_OWN_TEAM ->
+                            playerTeam == null ? isVisible : !entityTeam.isAlliedTo(playerTeam) && isVisible;
                 };
             }
         }
@@ -93,9 +101,10 @@ public class EntityVisibilityHelper {
     private static HitResult pickVisual(Level level, LivingEntity livingEntity, Player player, float partialTicks) {
         Vec3 playerEyePosition = player.getEyePosition(partialTicks);
         Vec3 entityEyePosition = livingEntity.getEyePosition(partialTicks);
-        return level.clip(
-                new ClipContext(playerEyePosition, entityEyePosition, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE,
-                        player
-                ));
+        return level.clip(new ClipContext(playerEyePosition,
+                entityEyePosition,
+                ClipContext.Block.VISUAL,
+                ClipContext.Fluid.NONE,
+                player));
     }
 }

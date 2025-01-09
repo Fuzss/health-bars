@@ -23,8 +23,8 @@ public class HealthBarHelper {
                 BossHealthOverlay.OVERLAY_PROGRESS_SPRITES)[barOverlay.ordinal() - 1].getPath());
     }
 
-    public static int getBarWidth(ClientConfig.BarConfig config, HealthTracker healthTracker) {
-        int barScale = config.scaleBarWidthByHealth ? getBarScaleFromHealth(healthTracker.getData().maxHealth()) - 2 :
+    public static int getBarWidth(ClientConfig.BarConfig config, HealthTrackerRenderState renderState) {
+        int barScale = config.scaleBarWidthByHealth ? getBarScaleFromHealth(renderState.maxHealth) - 2 :
                 0;
         barScale = Math.max(barScale, 0) + config.healthBarWidth;
         return getBarWidthByScale(Mth.clamp(barScale, 1, 4));

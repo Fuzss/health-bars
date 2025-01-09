@@ -13,6 +13,7 @@ import fuzs.puzzleslib.api.event.v1.data.DefaultedValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -35,7 +36,7 @@ public class InLevelRenderingHandler {
     }
 
     @SuppressWarnings("ConstantValue")
-    public static EventResult onRenderNameTag(Entity entity, DefaultedValue<Component> content, EntityRenderer<?> entityRenderer, PoseStack poseStack, int packedLight, float partialTick) {
+    public static EventResult onRenderNameTag(Entity entity, DefaultedValue<Component> content, EntityRenderer<?> entityRenderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, float partialTick) {
 
         if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get() || !HealthBars.CONFIG.get(
                 ClientConfig.class).levelRendering) {

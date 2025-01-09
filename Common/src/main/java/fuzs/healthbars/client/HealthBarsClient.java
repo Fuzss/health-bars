@@ -22,9 +22,7 @@ public class HealthBarsClient implements ClientModConstructor {
     private static void registerEventHandlers() {
         GameRenderEvents.BEFORE.register(PickEntityHandler::onBeforeGameRender);
         ClientTickEvents.START.register(PickEntityHandler::onStartClientTick);
-        RenderNameTagCallback.EVENT.register(
-                (entity, content, entityRenderer, poseStack, packedLight, partialTick, partialTick2) -> InLevelRenderingHandler.onRenderNameTag(
-                        entity, content, entityRenderer, poseStack, partialTick, partialTick2));
+        RenderNameTagCallback.EVENT.register(InLevelRenderingHandler::onRenderNameTag);
         RenderGuiEvents.AFTER.register(GuiRenderingHandler::onAfterRenderGui);
         EntityTickEvents.END.register(HealthTrackerHandler::onEndEntityTick);
     }
@@ -32,8 +30,7 @@ public class HealthBarsClient implements ClientModConstructor {
     @Override
     public void onRegisterParticleProviders(ParticleProvidersContext context) {
         context.registerParticleProvider(ModRegistry.DAMAGE_VALUE_PARTICLE_TYPE.value(),
-                new DamageValueParticle.Provider()
-        );
+                new DamageValueParticle.Provider());
     }
 
     @Override

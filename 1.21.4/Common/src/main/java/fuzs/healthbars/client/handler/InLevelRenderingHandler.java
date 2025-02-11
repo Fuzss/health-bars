@@ -6,7 +6,7 @@ import fuzs.healthbars.client.gui.LevelGraphics;
 import fuzs.healthbars.client.helper.*;
 import fuzs.healthbars.client.renderer.ModRenderType;
 import fuzs.healthbars.config.ClientConfig;
-import fuzs.puzzleslib.api.client.util.v1.RenderPropertyKey;
+import fuzs.puzzleslib.api.client.renderer.v1.RenderPropertyKey;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -51,9 +51,8 @@ public class InLevelRenderingHandler {
                 if (renderState.nameTag == null) {
                     // we must force the name tag to render, as the name tag render event does not run unless this is set
                     renderState.nameTag = CommonComponents.EMPTY;
-                    renderState.nameTagAttachment = entity.getAttachments().getNullable(EntityAttachment.NAME_TAG, 0,
-                            entity.getViewYRot(partialTick)
-                    );
+                    renderState.nameTagAttachment = entity.getAttachments()
+                            .getNullable(EntityAttachment.NAME_TAG, 0, entity.getViewYRot(partialTick));
                 }
             }
         }
@@ -81,7 +80,7 @@ public class InLevelRenderingHandler {
         return false;
     }
 
-    public static EventResult onRenderNameTag(EntityRenderState renderState, Component component, EntityRenderer<?, ?> entityRenderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, float partialTick) {
+    public static EventResult onRenderNameTag(EntityRenderState renderState, Component component, EntityRenderer<?, ?> entityRenderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 
         if (RenderPropertyKey.containsRenderProperty(renderState, HEALTH_TRACKER_PROPERTY)) {
 

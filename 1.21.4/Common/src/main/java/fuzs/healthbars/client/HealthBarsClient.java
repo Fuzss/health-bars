@@ -8,9 +8,9 @@ import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.core.v1.context.ParticleProvidersContext;
 import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
 import fuzs.puzzleslib.api.client.event.v1.gui.RenderGuiEvents;
-import fuzs.puzzleslib.api.client.event.v1.renderer.ExtractRenderStateCallbackV2;
+import fuzs.puzzleslib.api.client.event.v1.renderer.ExtractRenderStateCallback;
 import fuzs.puzzleslib.api.client.event.v1.renderer.GameRenderEvents;
-import fuzs.puzzleslib.api.client.event.v1.renderer.RenderNameTagEvents;
+import fuzs.puzzleslib.api.client.event.v1.renderer.RenderNameTagCallback;
 import fuzs.puzzleslib.api.event.v1.entity.EntityTickEvents;
 
 public class HealthBarsClient implements ClientModConstructor {
@@ -23,8 +23,8 @@ public class HealthBarsClient implements ClientModConstructor {
     private static void registerEventHandlers() {
         GameRenderEvents.BEFORE.register(PickEntityHandler::onBeforeGameRender);
         ClientTickEvents.START.register(PickEntityHandler::onStartClientTick);
-        ExtractRenderStateCallbackV2.EVENT.register(InLevelRenderingHandler::onExtractRenderState);
-        RenderNameTagEvents.RENDER.register(InLevelRenderingHandler::onRenderNameTag);
+        ExtractRenderStateCallback.EVENT.register(InLevelRenderingHandler::onExtractRenderState);
+        RenderNameTagCallback.EVENT.register(InLevelRenderingHandler::onRenderNameTag);
         RenderGuiEvents.AFTER.register(GuiRenderingHandler::onAfterRenderGui);
         EntityTickEvents.END.register(HealthTrackerHandler::onEndEntityTick);
     }
@@ -32,8 +32,7 @@ public class HealthBarsClient implements ClientModConstructor {
     @Override
     public void onRegisterParticleProviders(ParticleProvidersContext context) {
         context.registerParticleProvider(ModRegistry.DAMAGE_VALUE_PARTICLE_TYPE.value(),
-                new DamageValueParticle.Provider()
-        );
+                new DamageValueParticle.Provider());
     }
 
     @Override

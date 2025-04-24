@@ -42,7 +42,7 @@ public class InLevelRenderingHandler {
         if (entity instanceof LivingEntity livingEntity && canBarRender(livingEntity, partialTick)) {
             HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
             if (healthTracker != null) {
-                RenderPropertyKey.setRenderProperty(renderState,
+                RenderPropertyKey.set(renderState,
                         HEALTH_TRACKER_PROPERTY,
                         HealthTrackerRenderState.extractRenderState(healthTracker,
                                 livingEntity,
@@ -82,12 +82,11 @@ public class InLevelRenderingHandler {
 
     public static EventResult onRenderNameTag(EntityRenderState renderState, Component component, EntityRenderer<?, ?> entityRenderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
 
-        if (RenderPropertyKey.containsRenderProperty(renderState, HEALTH_TRACKER_PROPERTY)) {
+        if (RenderPropertyKey.has(renderState, HEALTH_TRACKER_PROPERTY)) {
 
             ClientConfig.Level config = HealthBars.CONFIG.get(ClientConfig.class).level;
             Minecraft minecraft = Minecraft.getInstance();
-            HealthTrackerRenderState healthTracker = RenderPropertyKey.getRenderProperty(renderState,
-                    HEALTH_TRACKER_PROPERTY);
+            HealthTrackerRenderState healthTracker = RenderPropertyKey.get(renderState, HEALTH_TRACKER_PROPERTY);
 
             poseStack.pushPose();
 
@@ -115,7 +114,7 @@ public class InLevelRenderingHandler {
                         healthTracker,
                         heightOffset,
                         minecraft.font,
-                        ModRenderType::iconSeeThrough,
+                        RenderType::textSeeThrough,
                         RenderType.textBackgroundSeeThrough(),
                         ARGB.white(0.125F),
                         Font.DisplayMode.SEE_THROUGH);
@@ -127,8 +126,8 @@ public class InLevelRenderingHandler {
                     healthTracker,
                     heightOffset,
                     minecraft.font,
-                    ModRenderType::icon,
-                    !config.behindWalls ? RenderType.textBackground() : null,
+                    RenderType::text,
+                    !config.behindWalls ? ModRenderType.textBackground() : null,
                     -1,
                     Font.DisplayMode.NORMAL);
 

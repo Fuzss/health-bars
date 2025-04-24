@@ -2,7 +2,7 @@ package fuzs.healthbars.client.helper;
 
 import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.config.ClientConfig;
-import fuzs.puzzleslib.api.core.v1.CommonAbstractions;
+import fuzs.healthbars.init.ModRegistry;
 import net.minecraft.client.gui.components.BossHealthOverlay;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -24,8 +24,7 @@ public class HealthBarHelper {
     }
 
     public static int getBarWidth(ClientConfig.BarConfig config, HealthTrackerRenderState renderState) {
-        int barScale = config.scaleBarWidthByHealth ? getBarScaleFromHealth(renderState.maxHealth) - 2 :
-                0;
+        int barScale = config.scaleBarWidthByHealth ? getBarScaleFromHealth(renderState.maxHealth) - 2 : 0;
         barScale = Math.max(barScale, 0) + config.healthBarWidth;
         return getBarWidthByScale(Mth.clamp(barScale, 1, 4));
     }
@@ -43,7 +42,7 @@ public class HealthBarHelper {
         EntityType<?> entityType = livingEntity.getType();
         if (entityType == EntityType.ENDER_DRAGON) {
             return BossEvent.BossBarColor.PINK;
-        } else if (CommonAbstractions.INSTANCE.isBossMob(entityType)) {
+        } else if (entityType.is(ModRegistry.BOSSES_ENTITY_TYPE_TAG)) {
             return BossEvent.BossBarColor.PURPLE;
         } else {
             if (livingEntity instanceof Enemy) {

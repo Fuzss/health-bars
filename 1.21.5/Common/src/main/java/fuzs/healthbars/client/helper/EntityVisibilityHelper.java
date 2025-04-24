@@ -6,10 +6,11 @@ import fuzs.healthbars.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
@@ -74,12 +75,13 @@ public class EntityVisibilityHelper {
             } else if (entity instanceof Creeper creeper && creeper.isPowered()) {
                 return true;
             } else {
-                for (ItemStack itemStack : entity.getAllSlots()) {
-                    if (!itemStack.isEmpty()) {
-                        return true;
+                for (EquipmentSlot equipmentSlot : EquipmentSlotGroup.ARMOR) {
+                    if (equipmentSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+                        if (!entity.getItemBySlot(equipmentSlot).isEmpty()) {
+                            return true;
+                        }
                     }
                 }
-
                 return false;
             }
         } else {

@@ -2,10 +2,12 @@ package fuzs.healthbars.client;
 
 import fuzs.healthbars.client.handler.*;
 import fuzs.healthbars.client.particle.DamageValueParticle;
+import fuzs.healthbars.client.renderer.ModRenderType;
 import fuzs.healthbars.init.ModRegistry;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.core.v1.context.ParticleProvidersContext;
+import fuzs.puzzleslib.api.client.core.v1.context.RenderPipelinesContext;
 import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
 import fuzs.puzzleslib.api.client.event.v1.gui.RenderGuiEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.ExtractRenderStateCallback;
@@ -38,5 +40,10 @@ public class HealthBarsClient implements ClientModConstructor {
     @Override
     public void onRegisterKeyMappings(KeyMappingsContext context) {
         KeyBindingHandler.onRegisterKeyMappings(context);
+    }
+
+    @Override
+    public void onRegisterRenderPipelines(RenderPipelinesContext context) {
+        context.registerRenderPipeline(ModRenderType.TEXT_BACKGROUND_PIPELINE);
     }
 }

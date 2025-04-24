@@ -2,7 +2,7 @@ package fuzs.healthbars.client.handler;
 
 import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.config.ClientConfig;
-import fuzs.puzzleslib.api.core.v1.CommonAbstractions;
+import fuzs.puzzleslib.api.entity.v1.EntityHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -44,14 +44,13 @@ public class PickEntityHandler {
             Profiler.get().push("pick");
             double blockInteractionRange = minecraft.player.blockInteractionRange();
             double entityInteractionRange = minecraft.player.entityInteractionRange();
-            int interactionRange = HealthBars.CONFIG.get(
-                    ClientConfig.class).pickedEntityInteractionRange;
+            int interactionRange = HealthBars.CONFIG.get(ClientConfig.class).pickedEntityInteractionRange;
             if (interactionRange != -1) {
                 blockInteractionRange = entityInteractionRange = interactionRange;
             }
             HitResult hitResult = pick(cameraEntity, blockInteractionRange, entityInteractionRange, partialTick);
             if (hitResult instanceof EntityHitResult entityHitResult) {
-                Entity entity = CommonAbstractions.INSTANCE.getPartEntityParent(entityHitResult.getEntity());
+                Entity entity = EntityHelper.getPartEntityParent(entityHitResult.getEntity());
                 crosshairPickEntity = new WeakReference<>(entity);
                 pickDelay = HealthBars.CONFIG.get(ClientConfig.class).pickedEntityDelay * 20;
             } else if (pickDelay == 0) {
@@ -76,18 +75,21 @@ public class PickEntityHandler {
         }
 
         Vec3 viewVector = entity.getViewVector(partialTick);
-        Vec3 vec3 = eyePosition.add(viewVector.x * interactionRange, viewVector.y * interactionRange,
-                viewVector.z * interactionRange
-        );
+        Vec3 vec3 = eyePosition.add(viewVector.x * interactionRange,
+                viewVector.y * interactionRange,
+                viewVector.z * interactionRange);
         AABB aABB = entity.getBoundingBox().expandTowards(viewVector.scale(interactionRange)).inflate(1.0, 1.0, 1.0);
-        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(entity, eyePosition, vec3, aABB,
+        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(entity,
+                eyePosition,
+                vec3,
+                aABB,
                 entityX -> (entityX instanceof LivingEntity || entityX instanceof EnderDragonPart) &&
-                        !entityX.isSpectator() && entityX.isPickable(), interactionRangeSqr
-        );
-        return entityHitResult != null && entityHitResult.getLocation().distanceToSqr(eyePosition) <
-                distanceToHitResult ? GameRenderer.filterHitResult(entityHitResult, eyePosition,
-                entityInteractionRange
-        ) : GameRenderer.filterHitResult(hitResult, eyePosition, blockInteractionRange);
+                        !entityX.isSpectator() && entityX.isPickable(),
+                interactionRangeSqr);
+        return entityHitResult != null &&
+                entityHitResult.getLocation().distanceToSqr(eyePosition) < distanceToHitResult ?
+                GameRenderer.filterHitResult(entityHitResult, eyePosition, entityInteractionRange) :
+                GameRenderer.filterHitResult(hitResult, eyePosition, blockInteractionRange);
     }
 
     /**
@@ -98,9 +100,12 @@ public class PickEntityHandler {
         Vec3 eyePosition = entity.getEyePosition(partialTicks);
         Vec3 viewVector = entity.getViewVector(partialTicks);
         Vec3 vec3 = eyePosition.add(viewVector.x * hitDistance, viewVector.y * hitDistance, viewVector.z * hitDistance);
-        return entity.level().clip(new ClipContext(eyePosition, vec3, ClipContext.Block.VISUAL,
-                hitFluids ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE, entity
-        ));
+        return entity.level()
+                .clip(new ClipContext(eyePosition,
+                        vec3,
+                        ClipContext.Block.VISUAL,
+                        hitFluids ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE,
+                        entity));
     }
 
     public static void onStartClientTick(Minecraft minecraft) {

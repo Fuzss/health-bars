@@ -1,7 +1,5 @@
 package fuzs.healthbars.client.handler;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.client.helper.*;
@@ -39,43 +37,45 @@ public class GuiRenderingHandler {
 
     public static void onAfterRenderGui(Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 
-        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get() || !HealthBars.CONFIG.get(
-                ClientConfig.class).guiRendering) {
+        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get() ||
+                !HealthBars.CONFIG.get(ClientConfig.class).guiRendering) {
             return;
         }
 
-        if (PickEntityHandler.getCrosshairPickEntity() instanceof LivingEntity livingEntity && HealthBars.CONFIG.get(
-                ClientConfig.class).isEntityAllowed(livingEntity)) {
+        if (PickEntityHandler.getCrosshairPickEntity() instanceof LivingEntity livingEntity &&
+                HealthBars.CONFIG.get(ClientConfig.class).isEntityAllowed(livingEntity)) {
 
             float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
             HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
-            if (healthTracker != null && EntityVisibilityHelper.isEntityVisible(gui.minecraft, livingEntity, partialTick, true
-            )) {
+            if (healthTracker != null &&
+                    EntityVisibilityHelper.isEntityVisible(gui.minecraft, livingEntity, partialTick, true)) {
                 ClientConfig.Gui config = HealthBars.CONFIG.get(ClientConfig.class).gui;
-                HealthTrackerRenderState renderState = HealthTrackerRenderState.extractRenderState(healthTracker, livingEntity, partialTick, config.barColors);
+                HealthTrackerRenderState renderState = HealthTrackerRenderState.extractRenderState(healthTracker,
+                        livingEntity,
+                        partialTick,
+                        config.barColors);
                 int barWidth = HealthBarHelper.getBarWidth(config, renderState);
                 AnchorPoint anchorPoint = config.anchorPoint;
                 AnchorPoint.Positioner positioner = anchorPoint.createPositioner(guiGraphics.guiWidth(),
-                        guiGraphics.guiHeight(), MOB_SELECTION_SIZE + 5 + barWidth, MOB_SELECTION_SIZE
-                );
+                        guiGraphics.guiHeight(),
+                        MOB_SELECTION_SIZE + 5 + barWidth,
+                        MOB_SELECTION_SIZE);
                 MutableInt posX = new MutableInt(positioner.getPosX(config.offsetWidth));
                 MutableInt posY = new MutableInt(positioner.getPosY(config.offsetHeight));
                 guiGraphics.pose().pushPose();
                 // draw above all other gui layers, since 1.21 they are all separated by z-offset, so this needs to be quite a lot
                 guiGraphics.pose().translate(0.0F, 0.0F, 3000.0F);
-                RenderSystem.enableBlend();
-                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO,
-                        GlStateManager.DestFactor.ONE
-                );
 
                 if (config.renderEntityDisplay) {
                     if (anchorPoint.isRight()) {
                         posX.add(barWidth + 5);
                     }
-                    guiGraphics.blitSprite(RenderType::guiTextured, MOB_SELECTION_SPRITE, posX.intValue(), posY.intValue(), MOB_SELECTION_SIZE,
-                            MOB_SELECTION_SIZE
-                    );
+                    guiGraphics.blitSprite(RenderType::guiTextured,
+                            MOB_SELECTION_SPRITE,
+                            posX.intValue(),
+                            posY.intValue(),
+                            MOB_SELECTION_SIZE,
+                            MOB_SELECTION_SIZE);
                     renderEntityDisplay(guiGraphics, posX, posY, renderState, livingEntity);
                     if (anchorPoint.isRight()) {
                         posX.subtract(barWidth + 5);
@@ -87,9 +87,9 @@ public class GuiRenderingHandler {
                 Font font = gui.minecraft.font;
                 int posXOffset = 0;
                 if (anchorPoint.isRight()) {
-                    FormattedCharSequence formattedCharSequence = getMobTitleComponent(font, renderState,
-                            MOB_TITLE_SCALE
-                    );
+                    FormattedCharSequence formattedCharSequence = getMobTitleComponent(font,
+                            renderState,
+                            MOB_TITLE_SCALE);
                     posXOffset = barWidth - 2 - (int) (font.width(formattedCharSequence) * MOB_TITLE_SCALE);
                     posX.add(posXOffset);
                 }
@@ -98,7 +98,6 @@ public class GuiRenderingHandler {
                     posX.subtract(posXOffset);
                 }
 
-                RenderSystem.enableBlend();
                 posY.add(MOB_SELECTION_SIZE / 2);
                 renderHealthBar(guiGraphics, posX, posY, font, renderState, barWidth);
                 if (config.renderAttributeComponents) {
@@ -115,8 +114,6 @@ public class GuiRenderingHandler {
                     }
                 }
 
-                RenderSystem.disableBlend();
-                RenderSystem.defaultBlendFunc();
                 guiGraphics.pose().popPose();
             }
         }
@@ -133,14 +130,21 @@ public class GuiRenderingHandler {
         int y1 = posY.intValue() + MOB_SELECTION_BORDER_SIZE;
         int x2 = posX.intValue() + MOB_SELECTION_SIZE - MOB_SELECTION_BORDER_SIZE;
         int y2 = posY.intValue() + MOB_SELECTION_SIZE - MOB_SELECTION_BORDER_SIZE;
-        int mouseX = posX.intValue() + MOB_SELECTION_SIZE / 2 + (70 - MOB_SELECTION_SIZE / 2) * (HealthBars.CONFIG.get(
-                ClientConfig.class).gui.anchorPoint.isRight() ? -1 : 1);
+        int mouseX = posX.intValue() + MOB_SELECTION_SIZE / 2 + (70 - MOB_SELECTION_SIZE / 2) *
+                (HealthBars.CONFIG.get(ClientConfig.class).gui.anchorPoint.isRight() ? -1 : 1);
         int mouseY = posY.intValue() + 10;
 
         InLevelRenderingHandler.setIsRenderingInGui(true);
-        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, x1, y1, x2, y2, scale, yOffset, mouseX, mouseY,
-                livingEntity
-        );
+        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics,
+                x1,
+                y1,
+                x2,
+                y2,
+                scale,
+                yOffset,
+                mouseX,
+                mouseY,
+                livingEntity);
         InLevelRenderingHandler.setIsRenderingInGui(false);
     }
 
@@ -148,9 +152,12 @@ public class GuiRenderingHandler {
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(MOB_TITLE_SCALE, MOB_TITLE_SCALE, MOB_TITLE_SCALE);
         FormattedCharSequence formattedCharSequence = getMobTitleComponent(font, renderState, MOB_TITLE_SCALE);
-        guiGraphics.drawString(font, formattedCharSequence, (int) (posX.intValue() / MOB_TITLE_SCALE),
-                (int) ((posY.intValue() + 5) / MOB_TITLE_SCALE), -1, true
-        );
+        guiGraphics.drawString(font,
+                formattedCharSequence,
+                (int) (posX.intValue() / MOB_TITLE_SCALE),
+                (int) ((posY.intValue() + 5) / MOB_TITLE_SCALE),
+                -1,
+                true);
         guiGraphics.pose().popPose();
     }
 
@@ -161,8 +168,7 @@ public class GuiRenderingHandler {
         if (font.width(component) > maxWidth) {
             Component ellipsis = Component.empty().append(CommonComponents.ELLIPSIS).withStyle(component.getStyle());
             FormattedText formattedText = FormattedText.composite(font.substrByWidth(component, (int) maxWidth),
-                    ellipsis
-            );
+                    ellipsis);
             return Language.getInstance().getVisualOrder(formattedText);
         } else {
             return component.getVisualOrderText();
@@ -171,37 +177,69 @@ public class GuiRenderingHandler {
 
     private static void renderHealthBar(GuiGraphics guiGraphics, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState, int barWidth) {
         ClientConfig.Gui config = HealthBars.CONFIG.get(ClientConfig.class).gui;
-        HealthBarRenderHelper.renderHealthBar(guiGraphics, RenderType::guiTextured, posX.intValue() - 1 + barWidth / 2, posY.intValue(),
-                renderState, barWidth,
-                -1
-        );
+        HealthBarRenderHelper.renderHealthBar(guiGraphics,
+                RenderType::guiTextured,
+                posX.intValue() - 1 + barWidth / 2,
+                posY.intValue(),
+                renderState,
+                barWidth,
+                -1);
         if (config.damageValues.renderDamageValues) {
             guiGraphics.drawSpecial(bufferSource -> {
-                drawDamageNumber(guiGraphics.pose(), bufferSource, font, renderState.healthData,
-                        posX.intValue() - 1 + (int) (barWidth * renderState.healthProgress), posY.intValue() - 1,
-                        15728880, config.damageValues
-                );
+                drawDamageNumber(guiGraphics.pose(),
+                        bufferSource,
+                        font,
+                        renderState.healthData,
+                        posX.intValue() - 1 + (int) (barWidth * renderState.healthProgress),
+                        posY.intValue() - 1,
+                        15728880,
+                        config.damageValues);
             });
         }
     }
 
     private static void renderHealthComponent(GuiGraphics guiGraphics, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState, boolean dropShadow, boolean renderSprite) {
-        renderHealthComponent(guiGraphics, RenderType::guiTextured, posX, posY, font, renderState, dropShadow, renderSprite, -1, Font.DisplayMode.NORMAL,
+        renderHealthComponent(guiGraphics,
+                RenderType::guiTextured,
+                posX,
+                posY,
+                font,
+                renderState,
+                dropShadow,
+                renderSprite,
+                -1,
+                Font.DisplayMode.NORMAL,
                 0XF000F0);
     }
 
     public static void renderHealthComponent(GuiGraphics guiGraphics, Function<ResourceLocation, RenderType> renderTypeGetter, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState, boolean dropShadow, boolean renderSprite, int color, Font.DisplayMode fontDisplayMode, int packedLight) {
         Component component = renderState.healthComponent;
-        HealthBarRenderHelper.drawString(guiGraphics, font, component, posX.intValue(), posY.intValue(), color, dropShadow, fontDisplayMode, packedLight);
+        HealthBarRenderHelper.drawString(guiGraphics,
+                font,
+                component,
+                posX.intValue(),
+                posY.intValue(),
+                color,
+                dropShadow,
+                fontDisplayMode,
+                packedLight);
         posX.add(font.width(component));
         if (renderSprite) {
             posX.add(TEXT_TO_SPRITE_GAP);
-            guiGraphics.blitSprite(renderTypeGetter, HEART_CONTAINER_SPRITE, posX.intValue(), posY.intValue(), GUI_SPRITE_SIZE,
-                    GUI_SPRITE_SIZE, color
-            );
-            guiGraphics.blitSprite(renderTypeGetter, HEART_FULL_SPRITE, posX.intValue(), posY.intValue(), GUI_SPRITE_SIZE,
-                    GUI_SPRITE_SIZE, color
-            );
+            guiGraphics.blitSprite(renderTypeGetter,
+                    HEART_CONTAINER_SPRITE,
+                    posX.intValue(),
+                    posY.intValue(),
+                    GUI_SPRITE_SIZE,
+                    GUI_SPRITE_SIZE,
+                    color);
+            guiGraphics.blitSprite(renderTypeGetter,
+                    HEART_FULL_SPRITE,
+                    posX.intValue(),
+                    posY.intValue(),
+                    GUI_SPRITE_SIZE,
+                    GUI_SPRITE_SIZE,
+                    color);
             posX.add(GUI_SPRITE_SIZE);
         }
     }
@@ -226,9 +264,12 @@ public class GuiRenderingHandler {
             component = Component.literal(String.valueOf(renderState.armorValue));
             guiGraphics.drawString(font, component, posX.intValue(), posY.intValue(), -1, true);
             posX.add(font.width(component) + TEXT_TO_SPRITE_GAP);
-            guiGraphics.blitSprite(RenderType::guiTextured, ARMOR_FULL_SPRITE, posX.intValue(), posY.intValue(), GUI_SPRITE_SIZE,
-                    GUI_SPRITE_SIZE
-            );
+            guiGraphics.blitSprite(RenderType::guiTextured,
+                    ARMOR_FULL_SPRITE,
+                    posX.intValue(),
+                    posY.intValue(),
+                    GUI_SPRITE_SIZE,
+                    GUI_SPRITE_SIZE);
             posX.add(GUI_SPRITE_SIZE);
         }
     }
@@ -255,13 +296,25 @@ public class GuiRenderingHandler {
             int stringWidth = font.width(s) / 2;
             if (damageValues.strongTextOutline) {
                 FormattedCharSequence text = Language.getInstance().getVisualOrder(FormattedText.of(s));
-                font.drawInBatch8xOutline(text, posX - stringWidth, posY, fontColor, 0, poseStack.last().pose(),
-                        bufferSource, packedLight
-                );
+                font.drawInBatch8xOutline(text,
+                        posX - stringWidth,
+                        posY,
+                        fontColor,
+                        0,
+                        poseStack.last().pose(),
+                        bufferSource,
+                        packedLight);
             } else {
-                font.drawInBatch(s, posX - stringWidth, posY, fontColor, true, poseStack.last().pose(), bufferSource,
-                        Font.DisplayMode.NORMAL, 0, packedLight
-                );
+                font.drawInBatch(s,
+                        posX - stringWidth,
+                        posY,
+                        fontColor,
+                        true,
+                        poseStack.last().pose(),
+                        bufferSource,
+                        Font.DisplayMode.NORMAL,
+                        0,
+                        packedLight);
             }
         }
     }

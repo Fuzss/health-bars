@@ -6,8 +6,8 @@ import fuzs.healthbars.client.helper.*;
 import fuzs.healthbars.config.AnchorPoint;
 import fuzs.healthbars.config.ClientConfig;
 import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -35,7 +35,7 @@ public class GuiRenderingHandler {
     public static final ResourceLocation HEART_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/heart/full");
     public static final ResourceLocation ARMOR_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/armor_full");
 
-    public static void onAfterRenderGui(Gui gui, GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public static void onAfterRenderGui(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 
         if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get() ||
                 !HealthBars.CONFIG.get(ClientConfig.class).guiRendering) {
@@ -45,10 +45,11 @@ public class GuiRenderingHandler {
         if (PickEntityHandler.getCrosshairPickEntity() instanceof LivingEntity livingEntity &&
                 HealthBars.CONFIG.get(ClientConfig.class).isEntityAllowed(livingEntity)) {
 
+            Minecraft minecraft = Minecraft.getInstance();
             float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
             HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
             if (healthTracker != null &&
-                    EntityVisibilityHelper.isEntityVisible(gui.minecraft, livingEntity, partialTick, true)) {
+                    EntityVisibilityHelper.isEntityVisible(minecraft, livingEntity, partialTick, true)) {
                 ClientConfig.Gui config = HealthBars.CONFIG.get(ClientConfig.class).gui;
                 HealthTrackerRenderState renderState = HealthTrackerRenderState.extractRenderState(healthTracker,
                         livingEntity,
@@ -63,8 +64,6 @@ public class GuiRenderingHandler {
                 MutableInt posX = new MutableInt(positioner.getPosX(config.offsetWidth));
                 MutableInt posY = new MutableInt(positioner.getPosY(config.offsetHeight));
                 guiGraphics.pose().pushPose();
-                // draw above all other gui layers, since 1.21 they are all separated by z-offset, so this needs to be quite a lot
-                guiGraphics.pose().translate(0.0F, 0.0F, 3000.0F);
 
                 if (config.renderEntityDisplay) {
                     if (anchorPoint.isRight()) {
@@ -84,7 +83,7 @@ public class GuiRenderingHandler {
                     }
                 }
 
-                Font font = gui.minecraft.font;
+                Font font = minecraft.font;
                 int posXOffset = 0;
                 if (anchorPoint.isRight()) {
                     FormattedCharSequence formattedCharSequence = getMobTitleComponent(font,
@@ -185,16 +184,14 @@ public class GuiRenderingHandler {
                 barWidth,
                 -1);
         if (config.damageValues.renderDamageValues) {
-            guiGraphics.drawSpecial(bufferSource -> {
-                drawDamageNumber(guiGraphics.pose(),
-                        bufferSource,
-                        font,
-                        renderState.healthData,
-                        posX.intValue() - 1 + (int) (barWidth * renderState.healthProgress),
-                        posY.intValue() - 1,
-                        15728880,
-                        config.damageValues);
-            });
+            drawDamageNumber(guiGraphics.pose(),
+                    guiGraphics.bufferSource,
+                    font,
+                    renderState.healthData,
+                    posX.intValue() - 1 + (int) (barWidth * renderState.healthProgress),
+                    posY.intValue() - 1,
+                    15728880,
+                    config.damageValues);
         }
     }
 

@@ -24,26 +24,50 @@ public class HealthBarRenderHelper {
 
     public static void renderHealthBar(GuiGraphics guiGraphics, Function<ResourceLocation, RenderType> renderTypeGetter, int posX, int posY, HealthTrackerRenderState renderState, int barWidth, int color) {
 
-        renderHealthBar(guiGraphics, renderTypeGetter, HealthBarHelper.getBarSprite(BossEvent.BossBarColor.WHITE, true), posX, posY,
-                barWidth, 1.0F, color
-        );
-        renderHealthBar(guiGraphics, renderTypeGetter, HealthBarHelper.getBarSprite(renderState.barColor, true), posX, posY, barWidth,
-                renderState.backgroundBarProgress, color
-        );
+        renderHealthBar(guiGraphics,
+                renderTypeGetter,
+                HealthBarHelper.getBarSprite(BossEvent.BossBarColor.WHITE, true),
+                posX,
+                posY,
+                barWidth,
+                1.0F,
+                color);
+        renderHealthBar(guiGraphics,
+                renderTypeGetter,
+                HealthBarHelper.getBarSprite(renderState.barColor, true),
+                posX,
+                posY,
+                barWidth,
+                renderState.backgroundBarProgress,
+                color);
         if (renderState.notchedStyle != ClientConfig.NotchedStyle.NONE) {
-            renderHealthBar(guiGraphics, renderTypeGetter,
+            renderHealthBar(guiGraphics,
+                    renderTypeGetter,
                     HealthBarHelper.getOverlaySprite(BossEvent.BossBarOverlay.NOTCHED_12, true),
-                    posX, posY, barWidth,
-                    renderState.notchedStyle == ClientConfig.NotchedStyle.COLORED ? renderState.backgroundBarProgress : 1.0F, color
-            );
+                    posX,
+                    posY,
+                    barWidth,
+                    renderState.notchedStyle == ClientConfig.NotchedStyle.COLORED ? renderState.backgroundBarProgress :
+                            1.0F,
+                    color);
         }
-        renderHealthBar(guiGraphics, renderTypeGetter, HealthBarHelper.getBarSprite(renderState.barColor, false), posX, posY, barWidth,
-                renderState.barProgress, color);
+        renderHealthBar(guiGraphics,
+                renderTypeGetter,
+                HealthBarHelper.getBarSprite(renderState.barColor, false),
+                posX,
+                posY,
+                barWidth,
+                renderState.barProgress,
+                color);
         if (renderState.notchedStyle != ClientConfig.NotchedStyle.NONE) {
-            renderHealthBar(guiGraphics, renderTypeGetter,
+            renderHealthBar(guiGraphics,
+                    renderTypeGetter,
                     HealthBarHelper.getOverlaySprite(BossEvent.BossBarOverlay.NOTCHED_12, false),
-                    posX, posY, barWidth, renderState.barProgress, color
-            );
+                    posX,
+                    posY,
+                    barWidth,
+                    renderState.barProgress,
+                    color);
         }
     }
 
@@ -57,45 +81,72 @@ public class HealthBarRenderHelper {
 
         if (textBackground != null) {
             int backgroundColor = Minecraft.getInstance().options.getBackgroundColor(0.25F);
-            renderHealthBarDecorations(posX, posY, font, renderState, barWidth,
+            renderHealthBarDecorations(posX,
+                    posY,
+                    font,
+                    renderState,
+                    barWidth,
                     (int x, int y, int width, int height) -> {
-                guiGraphics.drawSpecial((MultiBufferSource bufferSource) -> {
-                    fill(textBackground, guiGraphics.pose(), bufferSource, packedLight, x - 1,
-                            y - 1, x + width + 1, y + height + 1, -0.03F, backgroundColor
-                    );
-                });
-                    }, (int x, int y, int width, int height) -> {
-                guiGraphics.drawSpecial((MultiBufferSource bufferSource) -> {
-                    fill(textBackground, guiGraphics.pose(), bufferSource, packedLight, x - 1,
-                            y - 1, x + width + 1, y + height + 1, -0.03F, backgroundColor
-                    );
-                });
-                    }
-            );
+                        fill(textBackground,
+                                guiGraphics.pose(),
+                                guiGraphics.bufferSource,
+                                packedLight,
+                                x - 1,
+                                y - 1,
+                                x + width + 1,
+                                y + height + 1,
+                                -0.03F,
+                                backgroundColor);
+                    },
+                    (int x, int y, int width, int height) -> {
+                        fill(textBackground,
+                                guiGraphics.pose(),
+                                guiGraphics.bufferSource,
+                                packedLight,
+                                x - 1,
+                                y - 1,
+                                x + width + 1,
+                                y + height + 1,
+                                -0.03F,
+                                backgroundColor);
+                    });
         }
 
         renderHealthBarDecorations(posX, posY, font, renderState, barWidth, (int x, int y, int width, int height) -> {
-            drawString(guiGraphics, font, renderState.displayName, x, y, color, dropShadow, fontDisplayMode, packedLight);
+            drawString(guiGraphics,
+                    font,
+                    renderState.displayName,
+                    x,
+                    y,
+                    color,
+                    dropShadow,
+                    fontDisplayMode,
+                    packedLight);
         }, (int x, int y, int width, int height) -> {
-            GuiRenderingHandler.renderHealthComponent(guiGraphics, renderTypeGetter, new MutableInt(x), new MutableInt(y), font,
-                    renderState, dropShadow,
-                    HealthBars.CONFIG.get(ClientConfig.class).level.renderSpriteComponent, color, fontDisplayMode, packedLight
-            );
+            GuiRenderingHandler.renderHealthComponent(guiGraphics,
+                    renderTypeGetter,
+                    new MutableInt(x),
+                    new MutableInt(y),
+                    font,
+                    renderState,
+                    dropShadow,
+                    HealthBars.CONFIG.get(ClientConfig.class).level.renderSpriteComponent,
+                    color,
+                    fontDisplayMode,
+                    packedLight);
         });
     }
 
     private static void renderHealthBarDecorations(int posX, int posY, Font font, HealthTrackerRenderState renderState, int barWidth, TextElementRenderer titleRenderer, TextElementRenderer healthRenderer) {
 
-        boolean renderTitleComponent = HealthBars.CONFIG.get(
-                ClientConfig.class).level.renderTitleComponent;
-        boolean renderHealthComponent = HealthBars.CONFIG.get(
-                ClientConfig.class).level.renderHealthComponent;
+        boolean renderTitleComponent = HealthBars.CONFIG.get(ClientConfig.class).level.renderTitleComponent;
+        boolean renderHealthComponent = HealthBars.CONFIG.get(ClientConfig.class).level.renderHealthComponent;
 
         int offsetY = font.lineHeight + 2;
         int titleComponentWidth = font.width(renderState.displayName);
-        int healthComponentWidth = GuiRenderingHandler.getHealthComponentWidth(renderState, font,
-                HealthBars.CONFIG.get(ClientConfig.class).level.renderSpriteComponent
-        );
+        int healthComponentWidth = GuiRenderingHandler.getHealthComponentWidth(renderState,
+                font,
+                HealthBars.CONFIG.get(ClientConfig.class).level.renderSpriteComponent);
 
         if (renderTitleComponent && renderHealthComponent && titleComponentWidth <
                 barWidth - 2 - healthComponentWidth - GuiRenderingHandler.TEXT_TO_SPRITE_GAP * 2) {
@@ -109,16 +160,18 @@ public class HealthBarRenderHelper {
 
             if (renderHealthComponent) {
                 posY -= offsetY;
-                healthRenderer.renderAtPosition(posX - healthComponentWidth / 2, posY, healthComponentWidth,
-                        font.lineHeight - 1
-                );
+                healthRenderer.renderAtPosition(posX - healthComponentWidth / 2,
+                        posY,
+                        healthComponentWidth,
+                        font.lineHeight - 1);
             }
 
             if (renderTitleComponent) {
                 posY -= offsetY;
-                titleRenderer.renderAtPosition(posX - titleComponentWidth / 2, posY, titleComponentWidth,
-                        font.lineHeight - 1
-                );
+                titleRenderer.renderAtPosition(posX - titleComponentWidth / 2,
+                        posY,
+                        titleComponentWidth,
+                        font.lineHeight - 1);
             }
         }
     }
@@ -128,9 +181,16 @@ public class HealthBarRenderHelper {
     }
 
     public static void drawString(GuiGraphics guiGraphics, Font font, FormattedCharSequence text, int x, int y, int color, boolean dropShadow, Font.DisplayMode fontDisplayMode, int packedLight) {
-        guiGraphics.drawSpecial((MultiBufferSource bufferSource) -> {
-            font.drawInBatch(text, x, y, color, dropShadow, guiGraphics.pose().last().pose(), bufferSource, fontDisplayMode, 0, packedLight);
-        });
+        font.drawInBatch(text,
+                x,
+                y,
+                color,
+                dropShadow,
+                guiGraphics.pose().last().pose(),
+                guiGraphics.bufferSource,
+                fontDisplayMode,
+                0,
+                packedLight);
     }
 
     public static void fill(RenderType renderType, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int minX, int minY, int maxX, int maxY, float zOffset, int color) {

@@ -1,15 +1,16 @@
 package fuzs.healthbars.client;
 
+import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.client.handler.*;
 import fuzs.healthbars.client.particle.DamageValueParticle;
 import fuzs.healthbars.client.renderer.ModRenderType;
 import fuzs.healthbars.init.ModRegistry;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
+import fuzs.puzzleslib.api.client.core.v1.context.GuiLayersContext;
 import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
 import fuzs.puzzleslib.api.client.core.v1.context.ParticleProvidersContext;
 import fuzs.puzzleslib.api.client.core.v1.context.RenderPipelinesContext;
 import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
-import fuzs.puzzleslib.api.client.event.v1.gui.RenderGuiEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.ExtractRenderStateCallback;
 import fuzs.puzzleslib.api.client.event.v1.renderer.GameRenderEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.RenderNameTagCallback;
@@ -27,7 +28,6 @@ public class HealthBarsClient implements ClientModConstructor {
         ClientTickEvents.START.register(PickEntityHandler::onStartClientTick);
         ExtractRenderStateCallback.EVENT.register(InLevelRenderingHandler::onExtractRenderState);
         RenderNameTagCallback.EVENT.register(InLevelRenderingHandler::onRenderNameTag);
-        RenderGuiEvents.AFTER.register(GuiRenderingHandler::onAfterRenderGui);
         EntityTickEvents.END.register(HealthTrackerHandler::onEndEntityTick);
     }
 
@@ -45,5 +45,12 @@ public class HealthBarsClient implements ClientModConstructor {
     @Override
     public void onRegisterRenderPipelines(RenderPipelinesContext context) {
         context.registerRenderPipeline(ModRenderType.TEXT_BACKGROUND_PIPELINE);
+    }
+
+    @Override
+    public void onRegisterGuiLayers(GuiLayersContext context) {
+        context.registerGuiLayer(GuiLayersContext.BOSS_BAR,
+                HealthBars.id("health_bar"),
+                GuiRenderingHandler::onAfterRenderGui);
     }
 }

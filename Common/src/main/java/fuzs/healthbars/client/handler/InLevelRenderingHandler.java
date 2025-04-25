@@ -7,12 +7,19 @@ import fuzs.healthbars.client.helper.*;
 import fuzs.healthbars.client.renderer.ModRenderType;
 import fuzs.healthbars.config.ClientConfig;
 import fuzs.puzzleslib.api.client.renderer.v1.RenderPropertyKey;
+import fuzs.puzzleslib.api.core.v1.utility.ResourceLocationHelper;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
+import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.network.chat.CommonComponents;
@@ -26,12 +33,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 
 import java.util.function.Function;
 
 public class InLevelRenderingHandler {
+    public static final ResourceLocation GUI_SHEET = ResourceLocationHelper.withDefaultNamespace(
+            "textures/atlas/gui.png");
     private static final RenderPropertyKey<HealthTrackerRenderState> HEALTH_TRACKER_PROPERTY = new RenderPropertyKey<>(
             HealthBars.id("health_tracker"));
+
     private static boolean isRenderingInGui;
 
     public static void setIsRenderingInGui(boolean isRenderingInGui) {
@@ -105,28 +116,29 @@ public class InLevelRenderingHandler {
             }
             heightOffset += config.offsetHeight;
             int packedLightForRendering = config.fullBrightness ? 0XF000F0 : packedLight;
+            GuiGraphics guiGraphics = new LevelGraphics(poseStack, packedLightForRendering);
 
             if (config.behindWalls) {
                 poseStack.pushPose();
                 poseStack.translate(0.0F, 0.0F, 0.01F);
-                renderHealthBar(new LevelGraphics(poseStack, packedLightForRendering),
+                renderHealthBar(guiGraphics,
                         packedLightForRendering,
                         healthTracker,
                         heightOffset,
                         minecraft.font,
-                        RenderType::textSeeThrough,
+                        ModRenderType::textSeeThrough,
                         RenderType.textBackgroundSeeThrough(),
                         ARGB.white(0.125F),
                         Font.DisplayMode.SEE_THROUGH);
                 poseStack.popPose();
             }
 
-            renderHealthBar(new LevelGraphics(poseStack, packedLightForRendering),
+            renderHealthBar(guiGraphics,
                     packedLightForRendering,
                     healthTracker,
                     heightOffset,
                     minecraft.font,
-                    RenderType::text,
+                    ModRenderType::text,
                     !config.behindWalls ? ModRenderType.textBackground() : null,
                     -1,
                     Font.DisplayMode.NORMAL);
@@ -176,5 +188,14 @@ public class InLevelRenderingHandler {
                 !config.renderBackground,
                 fontDisplayMode,
                 packedLight);
+    }
+
+    public static void onRenderLevelAfterEntities(LevelRenderer levelRenderer, Camera camera, GameRenderer gameRenderer, DeltaTracker deltaTracker, PoseStack poseStack, Matrix4f projectionMatrix, Frustum frustum, ClientLevel level) {
+        MultiBufferSource.BufferSource bufferSource = gameRenderer.getMinecraft().renderBuffers().bufferSource();
+        // manually call BufferSource::endBatch, otherwise this is called very often and causes extreme lag
+        bufferSource.endBatch(ModRenderType.text(GUI_SHEET));
+        bufferSource.endBatch(ModRenderType.textSeeThrough(GUI_SHEET));
+        bufferSource.endBatch(ModRenderType.textBackground());
+        bufferSource.endBatch(ModRenderType.textBackgroundSeeThrough());
     }
 }

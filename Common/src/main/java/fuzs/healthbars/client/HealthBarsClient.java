@@ -6,13 +6,11 @@ import fuzs.healthbars.client.particle.DamageValueParticle;
 import fuzs.healthbars.client.renderer.ModRenderType;
 import fuzs.healthbars.init.ModRegistry;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
-import fuzs.puzzleslib.api.client.core.v1.context.GuiLayersContext;
-import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
-import fuzs.puzzleslib.api.client.core.v1.context.ParticleProvidersContext;
-import fuzs.puzzleslib.api.client.core.v1.context.RenderPipelinesContext;
+import fuzs.puzzleslib.api.client.core.v1.context.*;
 import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.ExtractRenderStateCallback;
 import fuzs.puzzleslib.api.client.event.v1.renderer.GameRenderEvents;
+import fuzs.puzzleslib.api.client.event.v1.renderer.RenderLevelEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.RenderNameTagCallback;
 import fuzs.puzzleslib.api.event.v1.entity.EntityTickEvents;
 
@@ -29,6 +27,7 @@ public class HealthBarsClient implements ClientModConstructor {
         ExtractRenderStateCallback.EVENT.register(InLevelRenderingHandler::onExtractRenderState);
         RenderNameTagCallback.EVENT.register(InLevelRenderingHandler::onRenderNameTag);
         EntityTickEvents.END.register(HealthTrackerHandler::onEndEntityTick);
+        RenderLevelEvents.AFTER_ENTITIES.register(InLevelRenderingHandler::onRenderLevelAfterEntities);
     }
 
     @Override
@@ -40,6 +39,14 @@ public class HealthBarsClient implements ClientModConstructor {
     @Override
     public void onRegisterKeyMappings(KeyMappingsContext context) {
         KeyBindingHandler.onRegisterKeyMappings(context);
+    }
+
+    @Override
+    public void onRegisterRenderBuffers(RenderBuffersContext context) {
+        context.registerRenderBuffer(ModRenderType.text(InLevelRenderingHandler.GUI_SHEET),
+                ModRenderType.textSeeThrough(InLevelRenderingHandler.GUI_SHEET),
+                ModRenderType.textBackground(),
+                ModRenderType.textBackgroundSeeThrough());
     }
 
     @Override

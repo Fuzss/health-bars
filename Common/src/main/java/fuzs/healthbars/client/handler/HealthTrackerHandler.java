@@ -39,9 +39,15 @@ public class HealthTrackerHandler {
         double xd = entity.getRandom().nextGaussian() * 0.04;
         double yd = 0.10 + (entity.getRandom().nextGaussian() * 0.05);
         double zd = entity.getRandom().nextGaussian() * 0.04;
+        // TODO fix this, currently does not show, probably due to render type
         Particle particle = ClientParticleHelper.addParticle(entity.level(),
-                ModRegistry.DAMAGE_VALUE_PARTICLE_TYPE.value(), pos.x(), pos.y(), pos.z(), xd, yd, zd
-        );
+                ModRegistry.DAMAGE_VALUE_PARTICLE_TYPE.value(),
+                pos.x(),
+                pos.y(),
+                pos.z(),
+                xd,
+                yd,
+                zd);
         if (particle != null) {
             ((DamageValueParticle) particle).setDamageValue(healthDelta);
         }

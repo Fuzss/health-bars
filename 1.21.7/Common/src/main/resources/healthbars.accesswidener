@@ -1,0 +1,9 @@
+accessWidener   v2  named
+accessible  method  net/minecraft/client/renderer/GameRenderer  filterHitResult (Lnet/minecraft/world/phys/HitResult;Lnet/minecraft/world/phys/Vec3;D)Lnet/minecraft/world/phys/HitResult;
+extendable  method  net/minecraft/client/gui/GuiGraphics    innerBlit   (Ljava/util/function/Function;Lnet/minecraft/resources/ResourceLocation;IIIIFFFFI)V
+accessible  field   net/minecraft/client/gui/GuiGraphics    bufferSource    Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;
+accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   BAR_BACKGROUND_SPRITES  [Lnet/minecraft/resources/ResourceLocation;
+accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   BAR_PROGRESS_SPRITES    [Lnet/minecraft/resources/ResourceLocation;
+accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   OVERLAY_BACKGROUND_SPRITES  [Lnet/minecraft/resources/ResourceLocation;
+accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   OVERLAY_PROGRESS_SPRITES    [Lnet/minecraft/resources/ResourceLocation;
+accessible  method  net/minecraft/client/renderer/entity/EntityRenderer shouldShowName  (Lnet/minecraft/world/entity/Entity;D)Z

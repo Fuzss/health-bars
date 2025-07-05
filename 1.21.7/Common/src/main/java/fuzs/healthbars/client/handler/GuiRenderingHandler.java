@@ -1,7 +1,7 @@
 package fuzs.healthbars.client.handler;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.healthbars.HealthBars;
+import fuzs.healthbars.client.gui.GraphicsComponent;
 import fuzs.healthbars.client.helper.*;
 import fuzs.healthbars.config.AnchorPoint;
 import fuzs.healthbars.config.ClientConfig;
@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.CommonComponents;
@@ -35,21 +35,23 @@ public class GuiRenderingHandler {
     public static final ResourceLocation HEART_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/heart/full");
     public static final ResourceLocation ARMOR_FULL_SPRITE = ResourceLocation.withDefaultNamespace("hud/armor_full");
 
-    public static void onAfterRenderGui(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public static void renderHealthBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
 
-        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get() ||
-                !HealthBars.CONFIG.get(ClientConfig.class).guiRendering) {
+        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get()
+                || !HealthBars.CONFIG.get(ClientConfig.class).guiRendering) {
             return;
         }
 
-        if (PickEntityHandler.getCrosshairPickEntity() instanceof LivingEntity livingEntity &&
-                HealthBars.CONFIG.get(ClientConfig.class).isEntityAllowed(livingEntity)) {
+        if (PickEntityHandler.getCrosshairPickEntity() instanceof LivingEntity livingEntity && HealthBars.CONFIG.get(
+                ClientConfig.class).isEntityAllowed(livingEntity)) {
 
             Minecraft minecraft = Minecraft.getInstance();
             float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
             HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
-            if (healthTracker != null &&
-                    EntityVisibilityHelper.isEntityVisible(minecraft, livingEntity, partialTick, true)) {
+            if (healthTracker != null && EntityVisibilityHelper.isEntityVisible(minecraft,
+                    livingEntity,
+                    partialTick,
+                    true)) {
                 ClientConfig.Gui config = HealthBars.CONFIG.get(ClientConfig.class).gui;
                 HealthTrackerRenderState renderState = HealthTrackerRenderState.extractRenderState(healthTracker,
                         livingEntity,
@@ -63,13 +65,12 @@ public class GuiRenderingHandler {
                         MOB_SELECTION_SIZE);
                 MutableInt posX = new MutableInt(positioner.getPosX(config.offsetWidth));
                 MutableInt posY = new MutableInt(positioner.getPosY(config.offsetHeight));
-                guiGraphics.pose().pushPose();
 
                 if (config.renderEntityDisplay) {
                     if (anchorPoint.isRight()) {
                         posX.add(barWidth + 5);
                     }
-                    guiGraphics.blitSprite(RenderType::guiTextured,
+                    guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
                             MOB_SELECTION_SPRITE,
                             posX.intValue(),
                             posY.intValue(),
@@ -98,22 +99,21 @@ public class GuiRenderingHandler {
                 }
 
                 posY.add(MOB_SELECTION_SIZE / 2);
-                renderHealthBar(guiGraphics, posX, posY, font, renderState, barWidth);
+                GraphicsComponent graphicsComponent = new GraphicsComponent.Gui(guiGraphics);
+                renderHealthBar(graphicsComponent, posX, posY, font, renderState, barWidth);
                 if (config.renderAttributeComponents) {
                     posY.add(8);
                     if (anchorPoint.isRight()) {
-                        posXOffset = barWidth - 2 - getHealthComponentWidth(renderState, font, true) -
-                                getArmorComponentWidth(renderState, font);
+                        posXOffset = barWidth - 2 - getHealthComponentWidth(renderState, font, true)
+                                - getArmorComponentWidth(renderState, font);
                         posX.add(posXOffset);
                     }
-                    renderHealthComponent(guiGraphics, posX, posY, font, renderState, true, true);
+                    renderHealthComponent(graphicsComponent, posX, posY, font, renderState);
                     renderArmorComponent(guiGraphics, posX, posY, font, renderState);
                     if (anchorPoint.isRight()) {
                         posX.subtract(posXOffset);
                     }
                 }
-
-                guiGraphics.pose().popPose();
             }
         }
     }
@@ -129,8 +129,8 @@ public class GuiRenderingHandler {
         int y1 = posY.intValue() + MOB_SELECTION_BORDER_SIZE;
         int x2 = posX.intValue() + MOB_SELECTION_SIZE - MOB_SELECTION_BORDER_SIZE;
         int y2 = posY.intValue() + MOB_SELECTION_SIZE - MOB_SELECTION_BORDER_SIZE;
-        int mouseX = posX.intValue() + MOB_SELECTION_SIZE / 2 + (70 - MOB_SELECTION_SIZE / 2) *
-                (HealthBars.CONFIG.get(ClientConfig.class).gui.anchorPoint.isRight() ? -1 : 1);
+        int mouseX = posX.intValue() + MOB_SELECTION_SIZE / 2 + (70 - MOB_SELECTION_SIZE / 2) * (
+                HealthBars.CONFIG.get(ClientConfig.class).gui.anchorPoint.isRight() ? -1 : 1);
         int mouseY = posY.intValue() + 10;
 
         InLevelRenderingHandler.setIsRenderingInGui(true);
@@ -148,8 +148,8 @@ public class GuiRenderingHandler {
     }
 
     private static void renderMobTitleComponent(GuiGraphics guiGraphics, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(MOB_TITLE_SCALE, MOB_TITLE_SCALE, MOB_TITLE_SCALE);
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().scale(MOB_TITLE_SCALE, MOB_TITLE_SCALE);
         FormattedCharSequence formattedCharSequence = getMobTitleComponent(font, renderState, MOB_TITLE_SCALE);
         guiGraphics.drawString(font,
                 formattedCharSequence,
@@ -157,7 +157,7 @@ public class GuiRenderingHandler {
                 (int) ((posY.intValue() + 5) / MOB_TITLE_SCALE),
                 -1,
                 true);
-        guiGraphics.pose().popPose();
+        guiGraphics.pose().popMatrix();
     }
 
     private static FormattedCharSequence getMobTitleComponent(Font font, HealthTrackerRenderState renderState, float titleScale) {
@@ -174,69 +174,65 @@ public class GuiRenderingHandler {
         }
     }
 
-    private static void renderHealthBar(GuiGraphics guiGraphics, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState, int barWidth) {
+    private static void renderHealthBar(GraphicsComponent graphicsComponent, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState, int barWidth) {
         ClientConfig.Gui config = HealthBars.CONFIG.get(ClientConfig.class).gui;
-        HealthBarRenderHelper.renderHealthBar(guiGraphics,
-                RenderType::guiTextured,
+        HealthBarRenderHelper.renderHealthBar(graphicsComponent,
+                null,
                 posX.intValue() - 1 + barWidth / 2,
                 posY.intValue(),
                 renderState,
                 barWidth,
-                -1);
+                -1,
+                GraphicsComponent.PACKED_LIGHT);
         if (config.damageValues.renderDamageValues) {
-            drawDamageNumber(guiGraphics.pose(),
-                    guiGraphics.bufferSource,
+            drawDamageNumber(graphicsComponent,
                     font,
                     renderState.healthData,
                     posX.intValue() - 1 + (int) (barWidth * renderState.healthProgress),
                     posY.intValue() - 1,
-                    15728880,
+                    GraphicsComponent.PACKED_LIGHT,
                     config.damageValues);
         }
     }
 
-    private static void renderHealthComponent(GuiGraphics guiGraphics, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState, boolean dropShadow, boolean renderSprite) {
-        renderHealthComponent(guiGraphics,
-                RenderType::guiTextured,
+    private static void renderHealthComponent(GraphicsComponent graphicsComponent, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState) {
+        renderHealthComponent(graphicsComponent,
+                null,
                 posX,
                 posY,
                 font,
                 renderState,
-                dropShadow,
-                renderSprite,
+                true,
+                true,
                 -1,
                 Font.DisplayMode.NORMAL,
-                0XF000F0);
+                GraphicsComponent.PACKED_LIGHT);
     }
 
-    public static void renderHealthComponent(GuiGraphics guiGraphics, Function<ResourceLocation, RenderType> renderTypeGetter, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState, boolean dropShadow, boolean renderSprite, int color, Font.DisplayMode fontDisplayMode, int packedLight) {
+    public static void renderHealthComponent(GraphicsComponent graphicsComponent, Function<ResourceLocation, RenderType> renderTypeGetter, MutableInt posX, MutableInt posY, Font font, HealthTrackerRenderState renderState, boolean dropShadow, boolean renderSprite, int color, Font.DisplayMode fontDisplayMode, int packedLight) {
         Component component = renderState.healthComponent;
-        HealthBarRenderHelper.drawString(guiGraphics,
-                font,
-                component,
-                posX.intValue(),
-                posY.intValue(),
-                color,
-                dropShadow,
-                fontDisplayMode,
-                packedLight);
+        int x = posX.intValue();
+        int y = posY.intValue();
+        graphicsComponent.drawString(font, component, x, y, color, dropShadow, fontDisplayMode, packedLight);
         posX.add(font.width(component));
         if (renderSprite) {
             posX.add(TEXT_TO_SPRITE_GAP);
-            guiGraphics.blitSprite(renderTypeGetter,
+            graphicsComponent.blitSprite(renderTypeGetter,
                     HEART_CONTAINER_SPRITE,
                     posX.intValue(),
                     posY.intValue(),
                     GUI_SPRITE_SIZE,
                     GUI_SPRITE_SIZE,
-                    color);
-            guiGraphics.blitSprite(renderTypeGetter,
+                    color,
+                    packedLight);
+            graphicsComponent.blitSprite(renderTypeGetter,
                     HEART_FULL_SPRITE,
                     posX.intValue(),
                     posY.intValue(),
                     GUI_SPRITE_SIZE,
                     GUI_SPRITE_SIZE,
-                    color);
+                    color,
+                    packedLight);
             posX.add(GUI_SPRITE_SIZE);
         }
     }
@@ -261,7 +257,7 @@ public class GuiRenderingHandler {
             component = Component.literal(String.valueOf(renderState.armorValue));
             guiGraphics.drawString(font, component, posX.intValue(), posY.intValue(), -1, true);
             posX.add(font.width(component) + TEXT_TO_SPRITE_GAP);
-            guiGraphics.blitSprite(RenderType::guiTextured,
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED,
                     ARMOR_FULL_SPRITE,
                     posX.intValue(),
                     posY.intValue(),
@@ -271,7 +267,7 @@ public class GuiRenderingHandler {
         }
     }
 
-    public static int getArmorComponentWidth(HealthTrackerRenderState renderState, Font font) {
+    private static int getArmorComponentWidth(HealthTrackerRenderState renderState, Font font) {
         if (renderState.armorValue > 0) {
             MutableInt posX = new MutableInt();
             posX.add(TEXT_TO_SPRITE_GAP * 2);
@@ -286,31 +282,21 @@ public class GuiRenderingHandler {
         }
     }
 
-    public static void drawDamageNumber(PoseStack poseStack, MultiBufferSource bufferSource, Font font, int damageAmount, int posX, int posY, int packedLight, ClientConfig.DamageValues damageValues) {
+    public static void drawDamageNumber(GraphicsComponent graphicsComponent, Font font, int damageAmount, int posX, int posY, int packedLight, ClientConfig.DamageValues damageValues) {
         if (damageAmount != 0) {
             int fontColor = damageValues.getTextColor(damageAmount);
-            String s = Integer.toString(Math.abs(damageAmount));
-            int stringWidth = font.width(s) / 2;
+            Component text = Component.literal(Integer.toString(Math.abs(damageAmount)));
+            int stringWidth = font.width(text) / 2;
             if (damageValues.strongTextOutline) {
-                FormattedCharSequence text = Language.getInstance().getVisualOrder(FormattedText.of(s));
-                font.drawInBatch8xOutline(text,
-                        posX - stringWidth,
-                        posY,
-                        fontColor,
-                        0,
-                        poseStack.last().pose(),
-                        bufferSource,
-                        packedLight);
+                graphicsComponent.drawString8xOutline(font, text, posX - stringWidth, posY, fontColor, packedLight);
             } else {
-                font.drawInBatch(s,
+                graphicsComponent.drawString(font,
+                        text,
                         posX - stringWidth,
                         posY,
                         fontColor,
                         true,
-                        poseStack.last().pose(),
-                        bufferSource,
                         Font.DisplayMode.NORMAL,
-                        0,
                         packedLight);
             }
         }

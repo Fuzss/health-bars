@@ -7,6 +7,7 @@ import fuzs.puzzleslib.api.config.v3.serialization.ConfigDataSet;
 import fuzs.puzzleslib.api.config.v3.serialization.KeyedValueProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -103,15 +104,33 @@ public class ClientConfig implements ConfigCore {
                 name = "mob_render_offsets",
                 description = "Custom vertical offsets for rendered entities. Offsets scale with entity dimensions, meaning larger entities require larger values."
         )
-        List<String> mobRenderOffsetsRaw = List.of("minecraft:allay,-0.05", "minecraft:armadillo,-0.1",
-                "minecraft:axolotl,0.1", "minecraft:bat,-0.3", "minecraft:bee,-0.1", "minecraft:camel,0.3",
-                "minecraft:cat,-0.25", "minecraft:chicken,0.15", "minecraft:cod,0.25", "minecraft:endermite,0.3",
-                "minecraft:fox,-0.15", "minecraft:frog,-0.05", "minecraft:ghast,-1.0", "minecraft:glow_squid,-0.2",
-                "minecraft:horse,0.1", "minecraft:llama,0.3", "minecraft:ocelot,-0.15", "minecraft:parrot,-0.3",
-                "minecraft:polar_bear,-0.3", "minecraft:salmon,0.15", "minecraft:silverfish,0.35",
-                "minecraft:squid,-0.2", "minecraft:tadpole,0.3", "minecraft:trader_llama,0.3",
-                "minecraft:tropical_fish,0.15", "minecraft:vex,-0.2", "minecraft:warden,0.4"
-        );
+        List<String> mobRenderOffsetsRaw = List.of("minecraft:allay,-0.05",
+                "minecraft:armadillo,-0.1",
+                "minecraft:axolotl,0.1",
+                "minecraft:bat,-0.3",
+                "minecraft:bee,-0.1",
+                "minecraft:camel,0.3",
+                "minecraft:cat,-0.25",
+                "minecraft:chicken,0.15",
+                "minecraft:cod,0.25",
+                "minecraft:endermite,0.3",
+                "minecraft:fox,-0.15",
+                "minecraft:frog,-0.05",
+                "minecraft:ghast,-1.0",
+                "minecraft:glow_squid,-0.2",
+                "minecraft:horse,0.1",
+                "minecraft:llama,0.3",
+                "minecraft:ocelot,-0.15",
+                "minecraft:parrot,-0.3",
+                "minecraft:polar_bear,-0.3",
+                "minecraft:salmon,0.15",
+                "minecraft:silverfish,0.35",
+                "minecraft:squid,-0.2",
+                "minecraft:tadpole,0.3",
+                "minecraft:trader_llama,0.3",
+                "minecraft:tropical_fish,0.15",
+                "minecraft:vex,-0.2",
+                "minecraft:warden,0.4");
 
         public Gui() {
             this.healthBarWidth = 3;
@@ -172,7 +191,7 @@ public class ClientConfig implements ConfigCore {
 
         public int getTextColor(int damageAmount) {
             ChatFormatting chatFormatting = damageAmount > 0 ? this.healColor : this.damageColor;
-            return chatFormatting.isColor() ? chatFormatting.getColor() : -1;
+            return chatFormatting.isColor() ? ARGB.opaque(chatFormatting.getColor()) : -1;
         }
     }
 

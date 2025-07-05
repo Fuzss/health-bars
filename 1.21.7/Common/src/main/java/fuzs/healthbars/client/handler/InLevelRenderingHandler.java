@@ -2,7 +2,7 @@ package fuzs.healthbars.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.healthbars.HealthBars;
-import fuzs.healthbars.client.gui.LevelGraphics;
+import fuzs.healthbars.client.gui.GraphicsComponent;
 import fuzs.healthbars.client.helper.*;
 import fuzs.healthbars.client.renderer.ModRenderType;
 import fuzs.healthbars.config.ClientConfig;
@@ -13,7 +13,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -33,7 +32,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 
 import java.util.function.Function;
 
@@ -71,15 +69,15 @@ public class InLevelRenderingHandler {
 
     @SuppressWarnings("ConstantValue")
     private static boolean canBarRender(LivingEntity livingEntity, float partialTick) {
-        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get() ||
-                !HealthBars.CONFIG.get(ClientConfig.class).levelRendering || isRenderingInGui) {
+        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get()
+                || !HealthBars.CONFIG.get(ClientConfig.class).levelRendering || isRenderingInGui) {
             return false;
         } else if (livingEntity.isAlive() && HealthBars.CONFIG.get(ClientConfig.class).isEntityAllowed(livingEntity)) {
 
             Minecraft minecraft = Minecraft.getInstance();
             Vec3 nameTagAttachment = livingEntity.getAttachments()
                     .getNullable(EntityAttachment.NAME_TAG, 0, livingEntity.getViewYRot(partialTick));
-            // other mods might be rendering this mob without a level in some menu, so camera is null then
+            // other mods might be rendering this mob without a level in some menu, so the camera is null then
             if (nameTagAttachment != null && minecraft.getEntityRenderDispatcher().camera != null) {
                 return EntityVisibilityHelper.isEntityVisible(minecraft,
                         livingEntity,
@@ -115,13 +113,11 @@ public class InLevelRenderingHandler {
                 heightOffset -= 13;
             }
             heightOffset += config.offsetHeight;
-            int packedLightForRendering = config.fullBrightness ? 0XF000F0 : packedLight;
-            GuiGraphics guiGraphics = new LevelGraphics(poseStack, packedLightForRendering);
+            int packedLightForRendering = config.fullBrightness ? GraphicsComponent.PACKED_LIGHT : packedLight;
+            GraphicsComponent graphicsComponent = new GraphicsComponent.Level(poseStack, bufferSource);
 
             if (config.behindWalls) {
-                poseStack.pushPose();
-                poseStack.translate(0.0F, 0.0F, 0.01F);
-                renderHealthBar(guiGraphics,
+                renderHealthBar(graphicsComponent,
                         packedLightForRendering,
                         healthTracker,
                         heightOffset,
@@ -130,10 +126,10 @@ public class InLevelRenderingHandler {
                         RenderType.textBackgroundSeeThrough(),
                         ARGB.white(0.125F),
                         Font.DisplayMode.SEE_THROUGH);
-                poseStack.popPose();
+                poseStack.translate(0.0F, 0.0F, 0.01F);
             }
 
-            renderHealthBar(guiGraphics,
+            renderHealthBar(graphicsComponent,
                     packedLightForRendering,
                     healthTracker,
                     heightOffset,
@@ -158,25 +154,26 @@ public class InLevelRenderingHandler {
         float renderScale = (float) HealthBars.CONFIG.get(ClientConfig.class).level.renderScale;
         if (HealthBars.CONFIG.get(ClientConfig.class).level.scaleWithDistance) {
             double entityInteractionRange = player.entityInteractionRange();
-            double scaleRatio = Mth.clamp((distanceToCameraSq - Math.pow(entityInteractionRange / 2.0, 2.0)) /
-                    (Math.pow(entityInteractionRange * 2.0, 2.0) / 2.0), 0.0, 2.0);
+            double scaleRatio = Mth.clamp((distanceToCameraSq - Math.pow(entityInteractionRange / 2.0, 2.0)) / (
+                    Math.pow(entityInteractionRange * 2.0, 2.0) / 2.0), 0.0, 2.0);
             renderScale *= (float) (1.0 + scaleRatio);
         }
 
         return renderScale;
     }
 
-    private static void renderHealthBar(GuiGraphics guiGraphics, int packedLight, HealthTrackerRenderState renderState, int heightOffset, Font font, Function<ResourceLocation, RenderType> renderTypeGetter, @Nullable RenderType textBackground, int color, Font.DisplayMode fontDisplayMode) {
+    private static void renderHealthBar(GraphicsComponent graphicsComponent, int packedLight, HealthTrackerRenderState renderState, int heightOffset, Font font, Function<ResourceLocation, RenderType> renderTypeGetter, @Nullable RenderType textBackground, int color, Font.DisplayMode fontDisplayMode) {
         ClientConfig.Level config = HealthBars.CONFIG.get(ClientConfig.class).level;
         int barWidth = HealthBarHelper.getBarWidth(config, renderState);
-        HealthBarRenderHelper.renderHealthBar(guiGraphics,
+        HealthBarRenderHelper.renderHealthBar(graphicsComponent,
                 renderTypeGetter,
                 0,
                 heightOffset + 8,
                 renderState,
                 barWidth,
-                color);
-        HealthBarRenderHelper.renderHealthBarDecorations(guiGraphics,
+                color,
+                packedLight);
+        HealthBarRenderHelper.renderHealthBarDecorations(graphicsComponent,
                 renderTypeGetter,
                 0,
                 heightOffset + 8,
@@ -190,11 +187,11 @@ public class InLevelRenderingHandler {
                 packedLight);
     }
 
-    public static void onRenderLevelAfterEntities(LevelRenderer levelRenderer, Camera camera, GameRenderer gameRenderer, DeltaTracker deltaTracker, PoseStack poseStack, Matrix4f projectionMatrix, Frustum frustum, ClientLevel level) {
+    public static void onRenderLevel(LevelRenderer levelRenderer, Camera camera, GameRenderer gameRenderer, DeltaTracker deltaTracker, PoseStack poseStack, Frustum frustum, ClientLevel clientLevel) {
         MultiBufferSource.BufferSource bufferSource = gameRenderer.getMinecraft().renderBuffers().bufferSource();
         // manually call BufferSource::endBatch, otherwise this is called very often and causes extreme lag
-        bufferSource.endBatch(ModRenderType.text(GUI_SHEET));
-        bufferSource.endBatch(ModRenderType.textSeeThrough(GUI_SHEET));
+        bufferSource.endBatch(ModRenderType.textGuiSheet());
+        bufferSource.endBatch(ModRenderType.textSeeThroughGuiSheet());
         bufferSource.endBatch(ModRenderType.textBackground());
         bufferSource.endBatch(ModRenderType.textBackgroundSeeThrough());
     }

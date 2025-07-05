@@ -10,7 +10,7 @@ import fuzs.puzzleslib.api.client.core.v1.context.*;
 import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
 import fuzs.puzzleslib.api.client.event.v1.renderer.ExtractRenderStateCallback;
 import fuzs.puzzleslib.api.client.event.v1.renderer.GameRenderEvents;
-import fuzs.puzzleslib.api.client.event.v1.renderer.RenderLevelEvents;
+import fuzs.puzzleslib.api.client.event.v1.renderer.RenderLevelCallback;
 import fuzs.puzzleslib.api.client.event.v1.renderer.RenderNameTagCallback;
 import fuzs.puzzleslib.api.event.v1.entity.EntityTickEvents;
 
@@ -27,7 +27,7 @@ public class HealthBarsClient implements ClientModConstructor {
         ExtractRenderStateCallback.EVENT.register(InLevelRenderingHandler::onExtractRenderState);
         RenderNameTagCallback.EVENT.register(InLevelRenderingHandler::onRenderNameTag);
         EntityTickEvents.END.register(HealthTrackerHandler::onEndEntityTick);
-        RenderLevelEvents.AFTER_ENTITIES.register(InLevelRenderingHandler::onRenderLevelAfterEntities);
+        RenderLevelCallback.ENTITIES.register(InLevelRenderingHandler::onRenderLevel);
     }
 
     @Override
@@ -43,10 +43,10 @@ public class HealthBarsClient implements ClientModConstructor {
 
     @Override
     public void onRegisterRenderBuffers(RenderBuffersContext context) {
-        context.registerRenderBuffer(ModRenderType.text(InLevelRenderingHandler.GUI_SHEET),
-                ModRenderType.textSeeThrough(InLevelRenderingHandler.GUI_SHEET),
-                ModRenderType.textBackground(),
-                ModRenderType.textBackgroundSeeThrough());
+        context.registerRenderBuffer(ModRenderType.textGuiSheet());
+        context.registerRenderBuffer(ModRenderType.textSeeThroughGuiSheet());
+        context.registerRenderBuffer(ModRenderType.textBackground());
+        context.registerRenderBuffer(ModRenderType.textBackgroundSeeThrough());
     }
 
     @Override
@@ -58,6 +58,6 @@ public class HealthBarsClient implements ClientModConstructor {
     public void onRegisterGuiLayers(GuiLayersContext context) {
         context.registerGuiLayer(GuiLayersContext.BOSS_BAR,
                 HealthBars.id("health_bar"),
-                GuiRenderingHandler::onAfterRenderGui);
+                GuiRenderingHandler::renderHealthBar);
     }
 }

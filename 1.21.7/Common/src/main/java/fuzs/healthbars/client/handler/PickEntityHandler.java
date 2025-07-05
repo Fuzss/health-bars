@@ -2,7 +2,7 @@ package fuzs.healthbars.client.handler;
 
 import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.config.ClientConfig;
-import fuzs.puzzleslib.api.entity.v1.EntityHelper;
+import fuzs.puzzleslib.api.util.v1.EntityHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -83,11 +83,11 @@ public class PickEntityHandler {
                 eyePosition,
                 vec3,
                 aABB,
-                entityX -> (entityX instanceof LivingEntity || entityX instanceof EnderDragonPart) &&
-                        !entityX.isSpectator() && entityX.isPickable(),
+                entityX -> (entityX instanceof LivingEntity || entityX instanceof EnderDragonPart)
+                        && !entityX.isSpectator() && entityX.isPickable(),
                 interactionRangeSqr);
-        return entityHitResult != null &&
-                entityHitResult.getLocation().distanceToSqr(eyePosition) < distanceToHitResult ?
+        return entityHitResult != null
+                && entityHitResult.getLocation().distanceToSqr(eyePosition) < distanceToHitResult ?
                 GameRenderer.filterHitResult(entityHitResult, eyePosition, entityInteractionRange) :
                 GameRenderer.filterHitResult(hitResult, eyePosition, blockInteractionRange);
     }

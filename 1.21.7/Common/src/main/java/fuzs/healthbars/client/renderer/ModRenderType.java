@@ -4,11 +4,11 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import fuzs.healthbars.HealthBars;
+import fuzs.healthbars.client.handler.InLevelRenderingHandler;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.TriState;
 
 import java.util.function.Function;
 
@@ -41,7 +41,7 @@ public abstract class ModRenderType extends RenderType {
             false,
             RenderPipelines.TEXT,
             CompositeState.builder()
-                    .setTextureState(new TextureStateShard(resourceLocation, TriState.FALSE, false))
+                    .setTextureState(new TextureStateShard(resourceLocation, false))
                     .setLightmapState(LIGHTMAP)
                     .createCompositeState(false)));
     /**
@@ -54,7 +54,7 @@ public abstract class ModRenderType extends RenderType {
             false,
             RenderPipelines.TEXT_SEE_THROUGH,
             CompositeState.builder()
-                    .setTextureState(new TextureStateShard(resourceLocation, TriState.FALSE, false))
+                    .setTextureState(new TextureStateShard(resourceLocation, false))
                     .setLightmapState(LIGHTMAP)
                     .createCompositeState(false)));
     /**
@@ -93,6 +93,14 @@ public abstract class ModRenderType extends RenderType {
 
     public static RenderType textSeeThrough(ResourceLocation location) {
         return TEXT_SEE_THROUGH.apply(location);
+    }
+
+    public static RenderType textGuiSheet() {
+        return text(InLevelRenderingHandler.GUI_SHEET);
+    }
+
+    public static RenderType textSeeThroughGuiSheet() {
+        return textSeeThrough(InLevelRenderingHandler.GUI_SHEET);
     }
 
     public static RenderType textBackground() {

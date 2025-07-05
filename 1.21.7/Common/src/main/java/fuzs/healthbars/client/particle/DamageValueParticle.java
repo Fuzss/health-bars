@@ -3,6 +3,7 @@ package fuzs.healthbars.client.particle;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import fuzs.healthbars.HealthBars;
+import fuzs.healthbars.client.gui.GraphicsComponent;
 import fuzs.healthbars.client.handler.GuiRenderingHandler;
 import fuzs.healthbars.config.ClientConfig;
 import net.minecraft.client.Camera;
@@ -35,30 +36,37 @@ public class DamageValueParticle extends Particle {
 
     @Override
     public void render(VertexConsumer buffer, Camera camera, float partialTicks) {
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        this.renderRotatedQuad(bufferSource, camera, camera.rotation(), partialTicks);
-        bufferSource.endBatch();
+        // NO-OP
     }
 
-    protected void renderRotatedQuad(MultiBufferSource.BufferSource bufferSource, Camera camera, Quaternionf quaternion, float partialTicks) {
+    @Override
+    public void renderCustom(PoseStack poseStack, MultiBufferSource bufferSource, Camera camera, float partialTick) {
+        this.renderRotatedQuad(poseStack, bufferSource, camera, camera.rotation(), partialTick);
+    }
+
+    protected void renderRotatedQuad(PoseStack poseStack, MultiBufferSource bufferSource, Camera camera, Quaternionf quaternion, float partialTick) {
         Vec3 vec3 = camera.getPosition();
-        float x = (float) (Mth.lerp(partialTicks, this.xo, this.x) - vec3.x());
-        float y = (float) (Mth.lerp(partialTicks, this.yo, this.y) - vec3.y());
-        float z = (float) (Mth.lerp(partialTicks, this.zo, this.z) - vec3.z());
-        this.renderRotatedQuad(bufferSource, quaternion, x, y, z, partialTicks);
+        float x = (float) (Mth.lerp(partialTick, this.xo, this.x) - vec3.x());
+        float y = (float) (Mth.lerp(partialTick, this.yo, this.y) - vec3.y());
+        float z = (float) (Mth.lerp(partialTick, this.zo, this.z) - vec3.z());
+        this.renderRotatedQuad(poseStack, bufferSource, quaternion, x, y, z);
     }
 
-    protected void renderRotatedQuad(MultiBufferSource.BufferSource bufferSource, Quaternionf quaternion, float x, float y, float z, float partialTicks) {
+    protected void renderRotatedQuad(PoseStack poseStack, MultiBufferSource bufferSource, Quaternionf quaternion, float x, float y, float z) {
         Font font = Minecraft.getInstance().font;
-        PoseStack poseStack = new PoseStack();
         poseStack.pushPose();
         poseStack.translate(x, y, z);
         poseStack.mulPose(quaternion);
         poseStack.scale(0.025F, -0.025F, 0.025F);
         ClientConfig.DamageValues damageValues = HealthBars.CONFIG.get(ClientConfig.class).level.damageValues;
-        GuiRenderingHandler.drawDamageNumber(poseStack, bufferSource, font, this.damageValue, 0, 0, 15728880,
-                damageValues
-        );
+        GraphicsComponent graphicsComponent = new GraphicsComponent.Level(poseStack, bufferSource);
+        GuiRenderingHandler.drawDamageNumber(graphicsComponent,
+                font,
+                this.damageValue,
+                0,
+                0,
+                GraphicsComponent.PACKED_LIGHT,
+                damageValues);
         poseStack.popPose();
     }
 

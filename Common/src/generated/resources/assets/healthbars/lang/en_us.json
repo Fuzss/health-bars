@@ -1,5 +1,5 @@
 {
-  "key.categories.healthbars": "Health Bars",
+  "key.category.healthbars.main": "Health Bars",
   "key.healthbars.toggle_health_bars": "Toggle Health Bars",
-  "key.toggle_health_bars.message": "Render Health Bars: %s"
+  "key.healthbars.toggle_health_bars.message": "Render Health Bars: %s"
 }

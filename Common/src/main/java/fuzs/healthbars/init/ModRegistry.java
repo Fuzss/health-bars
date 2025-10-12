@@ -1,7 +1,7 @@
 package fuzs.healthbars.init;
 
 import fuzs.healthbars.HealthBars;
-import fuzs.healthbars.client.helper.HealthTracker;
+import fuzs.healthbars.world.entity.HealthTracker;
 import fuzs.puzzleslib.api.attachment.v4.DataAttachmentRegistry;
 import fuzs.puzzleslib.api.attachment.v4.DataAttachmentType;
 import fuzs.puzzleslib.api.init.v3.registry.RegistryManager;

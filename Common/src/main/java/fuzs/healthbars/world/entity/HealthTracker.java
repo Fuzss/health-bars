@@ -1,19 +1,14 @@
-package fuzs.healthbars.client.helper;
+package fuzs.healthbars.world.entity;
 
-import fuzs.healthbars.HealthBars;
-import fuzs.healthbars.config.ClientConfig;
 import fuzs.healthbars.init.ModRegistry;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 
 public class HealthTracker {
-    static final int MAX_HEALTH_DELAY = 30;
-    static final int MAX_HEALTH_DELAY_PROGRESS = 10;
-    static final int MAX_HEALTH_DELAY_FREEZE_TICKS = 200;
+    private static final int MAX_HEALTH_DELAY = 30;
+    private static final int MAX_HEALTH_DELAY_PROGRESS = 10;
+    private static final int MAX_HEALTH_DELAY_FREEZE_TICKS = 200;
 
-    private EntityDataCache entityDataCache = EntityDataCache.EMPTY;
     private float maxHealth = -1;
     private float health;
     private float lastHealth;
@@ -67,12 +62,8 @@ public class HealthTracker {
             this.lastHealth = health;
             this.healthDelayFreezeTicks = MAX_HEALTH_DELAY_FREEZE_TICKS;
         }
-        this.maxHealth = livingEntity.getMaxHealth();
-        this.entityDataCache = EntityDataCache.of(livingEntity);
-    }
 
-    public EntityDataCache getData() {
-        return this.entityDataCache;
+        this.maxHealth = livingEntity.getMaxHealth();
     }
 
     public float getHealthProgress() {
@@ -97,20 +88,6 @@ public class HealthTracker {
             return this.getLastHealthProgress(partialTick) / this.maxHealth;
         } else {
             return this.health / this.maxHealth;
-        }
-    }
-
-    public record EntityDataCache(Component displayName, int health, int maxHealth, int armorValue, double renderOffset) {
-        public static final EntityDataCache EMPTY = new EntityDataCache(CommonComponents.EMPTY, 0, 0, 0, 0.0F);
-
-        public static EntityDataCache of(LivingEntity livingEntity) {
-            ClientConfig.Gui config = HealthBars.CONFIG.get(ClientConfig.class).gui;
-            double renderOffset = config.mobRenderOffsets.<Double>getOptional(livingEntity.getType(), 0).orElse(0.0);
-            return new EntityDataCache(livingEntity.getDisplayName(), Mth.ceil(livingEntity.getHealth()), Mth.ceil(livingEntity.getMaxHealth()), livingEntity.getArmorValue(), renderOffset);
-        }
-
-        public Component getHealthComponent() {
-            return Component.literal(this.health + "/" + this.maxHealth);
         }
     }
 }

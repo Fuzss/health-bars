@@ -1,5 +1,6 @@
 package fuzs.healthbars.config;
 
+import fuzs.puzzleslib.api.client.gui.v2.AnchorPoint;
 import fuzs.puzzleslib.api.config.v3.Config;
 import fuzs.puzzleslib.api.config.v3.ConfigCore;
 import fuzs.puzzleslib.api.config.v3.ValueCallback;
@@ -26,30 +27,24 @@ public class ClientConfig implements ConfigCore {
     public boolean guiRendering = true;
     @Config(description = "Allow rendering health bars above entities in the level.")
     public boolean levelRendering = true;
-    @Config(
-            category = KEY_GENERAL_CATEGORY, description = {
+    @Config(category = KEY_GENERAL_CATEGORY, description = {
             "The raytrace range for finding a picked entity.",
             "Setting this to -1 will make it use the player entity interaction range, which is 3 in survival."
-    }
-    )
+    })
     @Config.IntRange(min = -1, max = 128)
     public int pickedEntityInteractionRange = 16;
-    @Config(
-            category = KEY_GENERAL_CATEGORY, description = {
+    @Config(category = KEY_GENERAL_CATEGORY, description = {
             "Coyote time in seconds after which a no longer picked entity will still show the health bar.",
             "Set to -1 to keep the old entity until a new one is picked by the crosshair."
-    }
-    )
+    })
     @Config.IntRange(min = -1)
     public int pickedEntityDelay = 2;
     @Config(category = KEY_GENERAL_CATEGORY, description = "Hide health bar when the mob has full health.")
     public boolean hideAtFullHealth = false;
-    @Config(
-            category = KEY_GENERAL_CATEGORY,
+    @Config(category = KEY_GENERAL_CATEGORY,
             name = "no_health_bar_mobs",
-            description = {"Entities that may never show a health bar.", ConfigDataSet.CONFIG_DESCRIPTION}
-    )
-    List<String> noHealthBarMobsRaw = KeyedValueProvider.toString(Registries.ENTITY_TYPE, EntityType.ARMOR_STAND);
+            description = {"Entities that may never show a health bar.", ConfigDataSet.CONFIG_DESCRIPTION})
+    List<String> noHealthBarMobsRaw = KeyedValueProvider.asString(Registries.ENTITY_TYPE, EntityType.ARMOR_STAND);
 
     public ModConfigSpec.ConfigValue<Boolean> anyRendering;
     public ConfigDataSet<EntityType<?>> noHealthBarMobs;
@@ -82,9 +77,15 @@ public class ClientConfig implements ConfigCore {
         public final DamageValues damageValues = new DamageValues();
         @Config(description = "The default width multiplier for the health bar display.")
         @Config.IntRange(min = 1, max = 4)
-        public int healthBarWidth = 3;
+        public int healthBarColumns = 3;
         @Config(description = "Increase the health bar width for mobs with a lot of health, like bosses.")
         public boolean scaleBarWidthByHealth = true;
+        @Config(description = "Allow rendering attribute values such as health.")
+        public boolean renderAttributeComponents = true;
+        @Config(description = "Allow rendering sprites as part of the component text.")
+        public boolean renderComponentSprites = true;
+        @Config(description = "Show a black transparent background behind health bar text.")
+        public boolean textBackground = true;
     }
 
     public static class Gui extends BarConfig {
@@ -98,12 +99,8 @@ public class ClientConfig implements ConfigCore {
         public AnchorPoint anchorPoint = AnchorPoint.TOP_LEFT;
         @Config(description = "Allow rendering the visual mob display as part of the health bar overlay.")
         public boolean renderEntityDisplay = true;
-        @Config(description = "Allow rendering the health and possibly armor text.")
-        public boolean renderAttributeComponents = true;
-        @Config(
-                name = "mob_render_offsets",
-                description = "Custom vertical offsets for rendered entities. Offsets scale with entity dimensions, meaning larger entities require larger values."
-        )
+        @Config(name = "mob_render_offsets",
+                description = "Custom vertical offsets for rendered entities. Offsets scale with entity dimensions, meaning larger entities require larger values.")
         List<String> mobRenderOffsetsRaw = List.of("minecraft:allay,-0.05",
                 "minecraft:armadillo,-0.1",
                 "minecraft:axolotl,0.1",
@@ -133,7 +130,7 @@ public class ClientConfig implements ConfigCore {
                 "minecraft:warden,0.4");
 
         public Gui() {
-            this.healthBarWidth = 3;
+            this.healthBarColumns = 3;
         }
 
         public ConfigDataSet<EntityType<?>> mobRenderOffsets;
@@ -150,32 +147,22 @@ public class ClientConfig implements ConfigCore {
         @Config(description = "Custom scale for rendering health bars.")
         @Config.DoubleRange(min = 0.05, max = 2.0)
         public double renderScale = 0.5;
-        @Config(
-                description = "Dynamically increase health bar size the further away the camera is to simplify readability."
-        )
+        @Config(description = "Dynamically increase health bar size the further away the camera is to simplify readability.")
         public boolean scaleWithDistance = true;
-        @Config(
-                description = "Distance to the mob at which health bars will still be visible. The distance is halved when the mob is crouching."
-        )
+        @Config(description = "Distance to the mob at which health bars will still be visible. The distance is halved when the mob is crouching.")
         @Config.IntRange(min = 0)
-        public int maxRenderDistance = 96;
+        public int maxRenderDistance = 32;
         @Config(description = "Allow rendering the mob display name above the health bar. This will replace the vanilla name plate rendering.")
         public boolean renderTitleComponent = true;
-        @Config(description = "Allow rendering the health text.")
-        public boolean renderHealthComponent = true;
-        @Config(description = "Allow rendering the heart sprite as part of the health text.")
-        public boolean renderSpriteComponent = true;
-        @Config(description = "Show a black transparent background behind health bar text.")
-        public boolean renderBackground = false;
         @Config(description = "Always render health bars with full brightness to be most visible, ignoring local lighting conditions.")
         public boolean fullBrightness = true;
         @Config(description = "Offset in pixels on the vertical axis from default position.")
-        public int offsetHeight = 0;
+        public int heightOffset = 5;
         @Config(description = "Show health bars from mobs obstructed by walls the player cannot see through, similar to the nameplates of other players.")
         public boolean behindWalls = true;
 
         public Level() {
-            this.healthBarWidth = 2;
+            this.healthBarColumns = 2;
         }
     }
 

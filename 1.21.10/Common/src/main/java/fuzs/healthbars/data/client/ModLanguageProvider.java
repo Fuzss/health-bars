@@ -14,7 +14,7 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
     @Override
     public void addTranslations(TranslationBuilder builder) {
         builder.addKeyCategory(HealthBars.MOD_ID, HealthBars.MOD_NAME);
-        builder.add(KeyBindingHandler.TOGGLE_KEY_MAPPING, "Toggle Health Bars");
+        builder.add(KeyBindingHandler.TOGGLE_HEALTH_BARS_KEY_MAPPING, "Toggle Health Bars");
         builder.add(KeyBindingHandler.KEY_STATUS_MESSAGE, "Render Health Bars: %s");
     }
 }

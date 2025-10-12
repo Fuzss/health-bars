@@ -23,9 +23,9 @@ public class HealthBarHelper {
                 BossHealthOverlay.OVERLAY_PROGRESS_SPRITES)[barOverlay.ordinal() - 1].getPath());
     }
 
-    public static int getBarWidth(ClientConfig.BarConfig config, HealthTrackerRenderState renderState) {
-        int barScale = config.scaleBarWidthByHealth ? getBarScaleFromHealth(renderState.maxHealth) - 2 : 0;
-        barScale = Math.max(barScale, 0) + config.healthBarWidth;
+    public static int getBarWidth(ClientConfig.BarConfig config, int maxHealth) {
+        int barScale = config.scaleBarWidthByHealth ? getBarScaleFromHealth(maxHealth) - 2 : 0;
+        barScale = Math.max(barScale, 0) + config.healthBarColumns;
         return getBarWidthByScale(Mth.clamp(barScale, 1, 4));
     }
 

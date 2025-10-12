@@ -2,43 +2,36 @@ package fuzs.healthbars.client.handler;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.healthbars.HealthBars;
-import fuzs.healthbars.client.gui.GraphicsComponent;
-import fuzs.healthbars.client.helper.*;
-import fuzs.healthbars.client.renderer.ModRenderType;
+import fuzs.healthbars.client.gui.GraphicsLayer;
+import fuzs.healthbars.client.helper.EntityVisibilityHelper;
+import fuzs.healthbars.client.helper.HealthBarRenderHelper;
+import fuzs.healthbars.world.entity.HealthTracker;
+import fuzs.healthbars.client.renderer.entity.state.HealthTrackerRenderState;
 import fuzs.healthbars.config.ClientConfig;
-import fuzs.puzzleslib.api.client.renderer.v1.RenderPropertyKey;
-import fuzs.puzzleslib.api.core.v1.utility.ResourceLocationHelper;
+import fuzs.puzzleslib.api.client.renderer.v1.RenderStateExtraData;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityAttachment;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
+import java.util.Objects;
+import java.util.Optional;
 
 public class InLevelRenderingHandler {
-    public static final ResourceLocation GUI_SHEET = ResourceLocationHelper.withDefaultNamespace(
-            "textures/atlas/gui.png");
-    private static final RenderPropertyKey<HealthTrackerRenderState> HEALTH_TRACKER_PROPERTY = new RenderPropertyKey<>(
+    private static final ContextKey<Optional<HealthTrackerRenderState>> HEALTH_TRACKER_PROPERTY = new ContextKey<>(
             HealthBars.id("health_tracker"));
 
     private static boolean isRenderingInGui;
@@ -47,40 +40,36 @@ public class InLevelRenderingHandler {
         InLevelRenderingHandler.isRenderingInGui = isRenderingInGui;
     }
 
-    public static void onExtractRenderState(Entity entity, EntityRenderState renderState, float partialTick) {
+    public static void onExtractRenderState(Entity entity, EntityRenderState entityRenderState, float partialTick) {
         if (entity instanceof LivingEntity livingEntity && canBarRender(livingEntity, partialTick)) {
             HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
             if (healthTracker != null) {
-                RenderPropertyKey.set(renderState,
-                        HEALTH_TRACKER_PROPERTY,
-                        HealthTrackerRenderState.extractRenderState(healthTracker,
-                                livingEntity,
-                                partialTick,
-                                HealthBars.CONFIG.get(ClientConfig.class).level.barColors));
-                if (renderState.nameTag == null) {
+                HealthTrackerRenderState renderState = HealthTrackerRenderState.extractRenderState(healthTracker,
+                        livingEntity,
+                        partialTick,
+                        HealthBars.CONFIG.get(ClientConfig.class).level);
+                RenderStateExtraData.set(entityRenderState, HEALTH_TRACKER_PROPERTY, Optional.of(renderState));
+                if (entityRenderState.nameTag == null) {
                     // we must force the name tag to render, as the name tag render event does not run unless this is set
-                    renderState.nameTag = CommonComponents.EMPTY;
-                    renderState.nameTagAttachment = entity.getAttachments()
+                    entityRenderState.nameTag = CommonComponents.EMPTY;
+                    entityRenderState.nameTagAttachment = entity.getAttachments()
                             .getNullable(EntityAttachment.NAME_TAG, 0, entity.getViewYRot(partialTick));
                 }
             }
         }
     }
 
-    @SuppressWarnings("ConstantValue")
     private static boolean canBarRender(LivingEntity livingEntity, float partialTick) {
         if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get()
                 || !HealthBars.CONFIG.get(ClientConfig.class).levelRendering || isRenderingInGui) {
             return false;
         } else if (livingEntity.isAlive() && HealthBars.CONFIG.get(ClientConfig.class).isEntityAllowed(livingEntity)) {
-
             Minecraft minecraft = Minecraft.getInstance();
             Vec3 nameTagAttachment = livingEntity.getAttachments()
                     .getNullable(EntityAttachment.NAME_TAG, 0, livingEntity.getViewYRot(partialTick));
             // other mods might be rendering this mob without a level in some menu, so the camera is null then
             if (nameTagAttachment != null && minecraft.getEntityRenderDispatcher().camera != null) {
-                return EntityVisibilityHelper.isEntityVisible(minecraft,
-                        livingEntity,
+                return EntityVisibilityHelper.isEntityVisible(livingEntity,
                         partialTick,
                         HealthBars.CONFIG.get(ClientConfig.class).level.pickedEntity);
             }
@@ -89,59 +78,58 @@ public class InLevelRenderingHandler {
         return false;
     }
 
-    public static EventResult onRenderNameTag(EntityRenderState renderState, Component component, EntityRenderer<?, ?> entityRenderer, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-
-        if (RenderPropertyKey.has(renderState, HEALTH_TRACKER_PROPERTY)) {
-
-            ClientConfig.Level config = HealthBars.CONFIG.get(ClientConfig.class).level;
-            Minecraft minecraft = Minecraft.getInstance();
-            HealthTrackerRenderState healthTracker = RenderPropertyKey.get(renderState, HEALTH_TRACKER_PROPERTY);
-
+    public static EventResult onRenderNameTag(EntityRenderer<?, ?> entityRenderer, EntityRenderState entityRenderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState cameraRenderState) {
+        Component component = entityRenderState.nameTag;
+        Optional<HealthTrackerRenderState> optional = RenderStateExtraData.getOrDefault(entityRenderState,
+                HEALTH_TRACKER_PROPERTY,
+                Optional.empty());
+        if (component != null && optional.isPresent()) {
             poseStack.pushPose();
-
-            Vec3 vec3 = renderState.nameTagAttachment;
+            Vec3 vec3 = entityRenderState.nameTagAttachment;
             if (vec3 != null) {
                 poseStack.translate(vec3.x, vec3.y + 0.5, vec3.z);
             }
-            poseStack.mulPose(entityRenderer.entityRenderDispatcher.cameraOrientation());
-            float renderScale = getRenderScale(renderState.distanceToCameraSq, minecraft.player);
-            // x and z are flipped as of 1.21
+
+            poseStack.mulPose(cameraRenderState.orientation);
+            float renderScale = getRenderScale(entityRenderState.distanceToCameraSq);
             poseStack.scale(0.025F * renderScale, -0.025F * renderScale, 0.025F * renderScale);
 
-            int heightOffset = "deadmau5".equals(component.getString()) ? -13 : -3;
+            HealthTrackerRenderState renderState = optional.get();
+            ClientConfig.Level config = HealthBars.CONFIG.get(ClientConfig.class).level;
+            int posY = config.heightOffset;
+            if (Objects.equals("deadmau5", component.getString())) {
+                posY -= 10;
+            }
+
             if (!config.renderTitleComponent && component != CommonComponents.EMPTY) {
-                heightOffset -= 13;
+                posY -= 13;
             }
-            heightOffset += config.offsetHeight;
-            int packedLightForRendering = config.fullBrightness ? GraphicsComponent.PACKED_LIGHT : packedLight;
-            GraphicsComponent graphicsComponent = new GraphicsComponent.Level(poseStack, bufferSource);
 
+            int lightCoords = config.fullBrightness ? GraphicsLayer.PACKED_LIGHT : entityRenderState.lightCoords;
+            GraphicsLayer graphicsLayer = new GraphicsLayer.Level(poseStack, submitNodeCollector);
             if (config.behindWalls) {
-                renderHealthBar(graphicsComponent,
-                        packedLightForRendering,
-                        healthTracker,
-                        heightOffset,
-                        minecraft.font,
-                        ModRenderType::textSeeThrough,
-                        RenderType.textBackgroundSeeThrough(),
+                submitHealthBar(graphicsLayer,
+                        0,
+                        posY,
+                        renderState,
                         ARGB.white(0.125F),
-                        Font.DisplayMode.SEE_THROUGH);
-                poseStack.translate(0.0F, 0.0F, 0.01F);
+                        Font.DisplayMode.SEE_THROUGH,
+                        renderState.backgroundColor,
+                        lightCoords,
+                        entityRenderState.outlineColor);
             }
 
-            renderHealthBar(graphicsComponent,
-                    packedLightForRendering,
-                    healthTracker,
-                    heightOffset,
-                    minecraft.font,
-                    ModRenderType::text,
-                    !config.behindWalls ? ModRenderType.textBackground() : null,
+            submitHealthBar(graphicsLayer,
+                    0,
+                    posY,
+                    renderState,
                     -1,
-                    Font.DisplayMode.NORMAL);
-
+                    Font.DisplayMode.NORMAL,
+                    config.behindWalls ? 0 : renderState.backgroundColor,
+                    lightCoords,
+                    entityRenderState.outlineColor);
             poseStack.popPose();
-
-            // when the component is empty rendering has been forced by us and vanilla should not be allowed to proceed
+            // when the component is empty, rendering has been forced by us and vanilla should not be allowed to proceed
             if (config.renderTitleComponent || component == CommonComponents.EMPTY) {
                 return EventResult.INTERRUPT;
             }
@@ -150,10 +138,10 @@ public class InLevelRenderingHandler {
         return EventResult.PASS;
     }
 
-    private static float getRenderScale(double distanceToCameraSq, Player player) {
+    private static float getRenderScale(double distanceToCameraSq) {
         float renderScale = (float) HealthBars.CONFIG.get(ClientConfig.class).level.renderScale;
         if (HealthBars.CONFIG.get(ClientConfig.class).level.scaleWithDistance) {
-            double entityInteractionRange = player.entityInteractionRange();
+            double entityInteractionRange = Minecraft.getInstance().player.entityInteractionRange();
             double scaleRatio = Mth.clamp((distanceToCameraSq - Math.pow(entityInteractionRange / 2.0, 2.0)) / (
                     Math.pow(entityInteractionRange * 2.0, 2.0) / 2.0), 0.0, 2.0);
             renderScale *= (float) (1.0 + scaleRatio);
@@ -162,37 +150,23 @@ public class InLevelRenderingHandler {
         return renderScale;
     }
 
-    private static void renderHealthBar(GraphicsComponent graphicsComponent, int packedLight, HealthTrackerRenderState renderState, int heightOffset, Font font, Function<ResourceLocation, RenderType> renderTypeGetter, @Nullable RenderType textBackground, int color, Font.DisplayMode fontDisplayMode) {
-        ClientConfig.Level config = HealthBars.CONFIG.get(ClientConfig.class).level;
-        int barWidth = HealthBarHelper.getBarWidth(config, renderState);
-        HealthBarRenderHelper.renderHealthBar(graphicsComponent,
-                renderTypeGetter,
-                0,
-                heightOffset + 8,
+    private static void submitHealthBar(GraphicsLayer graphicsLayer, int posX, int posY, HealthTrackerRenderState renderState, int color, Font.DisplayMode displayMode, int backgroundColor, int lightCoords, int outlineColor) {
+        HealthBarRenderHelper.submitHealthBar(graphicsLayer,
+                displayMode == Font.DisplayMode.SEE_THROUGH ? RenderType::textSeeThrough : RenderType::text,
+                posX,
+                posY,
                 renderState,
-                barWidth,
                 color,
-                packedLight);
-        HealthBarRenderHelper.renderHealthBarDecorations(graphicsComponent,
-                renderTypeGetter,
-                0,
-                heightOffset + 8,
-                font,
-                config.renderBackground ? textBackground : null,
+                lightCoords);
+        HealthBarRenderHelper.submitHealthBarDecorations(graphicsLayer,
+                posX,
+                posY,
+                Minecraft.getInstance().font,
                 renderState,
-                barWidth,
                 color,
-                !config.renderBackground,
-                fontDisplayMode,
-                packedLight);
-    }
-
-    public static void onRenderLevel(LevelRenderer levelRenderer, Camera camera, GameRenderer gameRenderer, DeltaTracker deltaTracker, PoseStack poseStack, Frustum frustum, ClientLevel clientLevel) {
-        MultiBufferSource.BufferSource bufferSource = gameRenderer.getMinecraft().renderBuffers().bufferSource();
-        // manually call BufferSource::endBatch, otherwise this is called very often and causes extreme lag
-        bufferSource.endBatch(ModRenderType.textGuiSheet());
-        bufferSource.endBatch(ModRenderType.textSeeThroughGuiSheet());
-        bufferSource.endBatch(ModRenderType.textBackground());
-        bufferSource.endBatch(ModRenderType.textBackgroundSeeThrough());
+                displayMode,
+                backgroundColor,
+                lightCoords,
+                outlineColor);
     }
 }

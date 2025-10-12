@@ -1,12 +1,13 @@
 package fuzs.healthbars.client.handler;
 
 import fuzs.healthbars.HealthBars;
-import fuzs.healthbars.client.helper.HealthTracker;
+import fuzs.healthbars.world.entity.HealthTracker;
 import fuzs.healthbars.client.particle.DamageValueParticle;
 import fuzs.healthbars.config.ClientConfig;
 import fuzs.healthbars.init.ModRegistry;
 import fuzs.puzzleslib.api.client.util.v1.ClientParticleHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 public class HealthTrackerHandler {
 
     public static void onEndEntityTick(Entity entity) {
-        if (entity.level().isClientSide && entity instanceof LivingEntity livingEntity) {
+        if (entity.level().isClientSide() && entity instanceof LivingEntity livingEntity) {
             HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, true);
             healthTracker.tick(livingEntity);
             int healthDelta = healthTracker.getLastHealthDelta();
@@ -39,8 +40,7 @@ public class HealthTrackerHandler {
         double xd = entity.getRandom().nextGaussian() * 0.04;
         double yd = 0.10 + (entity.getRandom().nextGaussian() * 0.05);
         double zd = entity.getRandom().nextGaussian() * 0.04;
-        // TODO fix this, currently does not show, probably due to render type
-        Particle particle = ClientParticleHelper.addParticle(entity.level(),
+        Particle particle = ClientParticleHelper.addParticle((ClientLevel) entity.level(),
                 ModRegistry.DAMAGE_VALUE_PARTICLE_TYPE.value(),
                 pos.x(),
                 pos.y(),

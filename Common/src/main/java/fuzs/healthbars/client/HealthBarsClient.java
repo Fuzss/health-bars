@@ -3,6 +3,7 @@ package fuzs.healthbars.client;
 import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.client.handler.*;
 import fuzs.healthbars.client.particle.DamageValueParticle;
+import fuzs.healthbars.client.particle.DamageValueParticleGroup;
 import fuzs.healthbars.client.renderer.ModRenderType;
 import fuzs.healthbars.init.ModRegistry;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
@@ -35,6 +36,7 @@ public class HealthBarsClient implements ClientModConstructor {
     public void onRegisterParticleProviders(ParticleProvidersContext context) {
         context.registerParticleProvider(ModRegistry.DAMAGE_VALUE_PARTICLE_TYPE.value(),
                 new DamageValueParticle.Provider());
+        context.registerParticleRenderType(DamageValueParticleGroup.GROUP, DamageValueParticleGroup::new);
     }
 
     @Override

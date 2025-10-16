@@ -2,38 +2,18 @@ package fuzs.healthbars.neoforge.client;
 
 import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.client.HealthBarsClient;
-import fuzs.healthbars.client.particle.DamageValueParticleGroup;
 import fuzs.healthbars.data.client.ModLanguageProvider;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.neoforge.api.data.v2.core.DataProviderHelper;
-import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.client.particle.ParticleRenderType;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-
-import java.util.ArrayList;
 
 @Mod(value = HealthBars.MOD_ID, dist = Dist.CLIENT)
 public class HealthBarsNeoForgeClient {
 
     public HealthBarsNeoForgeClient(ModContainer modContainer) {
         ClientModConstructor.construct(HealthBars.MOD_ID, HealthBarsClient::new);
-        // TODO move this to Puzzles Lib
-        registerLoadingProviders(modContainer.getEventBus());
         DataProviderHelper.registerDataProviders(HealthBars.MOD_ID, ModLanguageProvider::new);
-    }
-
-    @Deprecated
-    private static void registerLoadingProviders(IEventBus eventBus) {
-        eventBus.addListener((final RegisterParticleProvidersEvent event) -> {
-            if (!(ParticleEngine.RENDER_ORDER instanceof ArrayList<ParticleRenderType>)) {
-                ParticleEngine.RENDER_ORDER = new ArrayList<>(ParticleEngine.RENDER_ORDER);
-            }
-
-            ParticleEngine.RENDER_ORDER.add(DamageValueParticleGroup.GROUP);
-        });
     }
 }

@@ -28,6 +28,7 @@ public class KeyBindingHandler {
                 KeyActivationHandler.forGame((Minecraft minecraft) -> {
                     ModConfigSpec.ConfigValue<Boolean> enableRendering = HealthBars.CONFIG.get(ClientConfig.class).anyRendering;
                     enableRendering.set(!enableRendering.get());
+                    enableRendering.save();
                     Component component = Component.translatable(KEY_STATUS_MESSAGE,
                             enableRendering.get() ? ON_COMPONENT : OFF_COMPONENT);
                     minecraft.gui.setOverlayMessage(component, false);

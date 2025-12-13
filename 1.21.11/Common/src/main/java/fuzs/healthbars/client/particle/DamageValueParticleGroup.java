@@ -39,7 +39,7 @@ public class DamageValueParticleGroup extends ParticleGroup<DamageValueParticle>
             double x = Mth.lerp(partialTick, particle.xo, particle.x);
             double y = Mth.lerp(partialTick, particle.yo, particle.y);
             double z = Mth.lerp(partialTick, particle.zo, particle.z);
-            return new ParticleRenderState(particle.damageValue, new Vec3(x, y, z).subtract(camera.getPosition()));
+            return new ParticleRenderState(particle.damageValue, new Vec3(x, y, z).subtract(camera.position()));
         }
     }
 

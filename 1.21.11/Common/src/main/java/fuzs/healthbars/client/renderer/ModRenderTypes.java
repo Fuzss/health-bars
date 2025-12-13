@@ -5,9 +5,10 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import fuzs.healthbars.HealthBars;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
 
-public abstract class ModRenderType extends RenderType {
+public final class ModRenderTypes {
     /**
      * Disable depth write as it prevents water behind the text background from rendering.
      *
@@ -23,20 +24,13 @@ public abstract class ModRenderType extends RenderType {
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, VertexFormat.Mode.QUADS)
             .build();
     /**
-     * @see RenderType#TEXT_BACKGROUND
+     * @see net.minecraft.client.renderer.rendertype.RenderTypes#TEXT_BACKGROUND
      */
-    private static final RenderType TEXT_BACKGROUND = create(HealthBars.id("text_background").toString(),
-            1536,
-            false,
-            true,
-            TEXT_BACKGROUND_PIPELINE,
-            CompositeState.builder()
-                    .setTextureState(NO_TEXTURE)
-                    .setLightmapState(LIGHTMAP)
-                    .createCompositeState(false));
+    private static final RenderType TEXT_BACKGROUND = RenderType.create(HealthBars.id("text_background").toString(),
+            RenderSetup.builder(TEXT_BACKGROUND_PIPELINE).useLightmap().sortOnUpload().createRenderSetup());
 
-    private ModRenderType(String name, int bufferSize, boolean affectsCrumbling, boolean sortOnUpload, Runnable setupState, Runnable clearState) {
-        super(name, bufferSize, affectsCrumbling, sortOnUpload, setupState, clearState);
+    private ModRenderTypes() {
+        // NO-OP
     }
 
     public static RenderType textBackground() {

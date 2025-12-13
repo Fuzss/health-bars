@@ -8,12 +8,12 @@ import fuzs.healthbars.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class HealthTrackerRenderState {
     public Component displayName = CommonComponents.EMPTY;
@@ -23,12 +23,9 @@ public class HealthTrackerRenderState {
     public int armorValue;
     public int toughnessValue;
     public double renderOffset;
-    @Nullable
-    public ResourceLocation healthSprite;
-    @Nullable
-    public ResourceLocation armorSprite;
-    @Nullable
-    public ResourceLocation toughnessSprite;
+    @Nullable public Identifier healthSprite;
+    @Nullable public Identifier armorSprite;
+    @Nullable public Identifier toughnessSprite;
     public int healthData;
     public float healthProgress;
     public int barWidth;

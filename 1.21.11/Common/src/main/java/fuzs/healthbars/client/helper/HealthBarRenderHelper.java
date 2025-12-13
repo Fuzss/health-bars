@@ -6,16 +6,16 @@ import fuzs.healthbars.client.handler.GuiRenderingHandler;
 import fuzs.healthbars.client.renderer.entity.state.HealthTrackerRenderState;
 import fuzs.healthbars.config.ClientConfig;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.BossEvent;
 
 import java.util.function.Function;
 
 public class HealthBarRenderHelper {
 
-    public static void submitHealthBar(GraphicsLayer graphicsLayer, Function<ResourceLocation, RenderType> renderTypeGetter, int posX, int posY, HealthTrackerRenderState renderState, int color, int lightCoords) {
+    public static void submitHealthBar(GraphicsLayer graphicsLayer, Function<Identifier, RenderType> renderTypeGetter, int posX, int posY, HealthTrackerRenderState renderState, int color, int lightCoords) {
         submitHealthBar(graphicsLayer,
                 renderTypeGetter,
                 HealthBarHelper.getBarSprite(BossEvent.BossBarColor.WHITE, true),
@@ -69,9 +69,9 @@ public class HealthBarRenderHelper {
         }
     }
 
-    private static void submitHealthBar(GraphicsLayer graphicsLayer, Function<ResourceLocation, RenderType> renderTypeGetter, ResourceLocation resourceLocation, int posX, int posY, int width, float progress, int color, int lightCoords) {
+    private static void submitHealthBar(GraphicsLayer graphicsLayer, Function<Identifier, RenderType> renderTypeGetter, Identifier identifier, int posX, int posY, int width, float progress, int color, int lightCoords) {
         graphicsLayer.blitSprite(renderTypeGetter,
-                resourceLocation,
+                identifier,
                 posX - (width / 2),
                 posY,
                 (int) (width * progress),

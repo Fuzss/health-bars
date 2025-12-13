@@ -5,19 +5,19 @@ import fuzs.healthbars.config.ClientConfig;
 import fuzs.puzzleslib.api.util.v1.EntityHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 
@@ -83,13 +83,12 @@ public class PickEntityHandler {
                 eyePosition,
                 vec3,
                 aABB,
-                entityX -> (entityX instanceof LivingEntity || entityX instanceof EnderDragonPart)
-                        && !entityX.isSpectator() && entityX.isPickable(),
+                PickEntityHandler::isEntityPickable,
                 interactionRangeSqr);
         return entityHitResult != null
                 && entityHitResult.getLocation().distanceToSqr(eyePosition) < distanceToHitResult ?
-                GameRenderer.filterHitResult(entityHitResult, eyePosition, entityInteractionRange) :
-                GameRenderer.filterHitResult(hitResult, eyePosition, blockInteractionRange);
+                LocalPlayer.filterHitResult(entityHitResult, eyePosition, entityInteractionRange) :
+                LocalPlayer.filterHitResult(hitResult, eyePosition, blockInteractionRange);
     }
 
     /**
@@ -106,6 +105,11 @@ public class PickEntityHandler {
                         ClipContext.Block.VISUAL,
                         hitFluids ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE,
                         entity));
+    }
+
+    private static boolean isEntityPickable(Entity entity) {
+        return EntityHelper.getPartEntityParent(entity) instanceof LivingEntity && !entity.isSpectator()
+                && entity.isPickable();
     }
 
     public static void onStartClientTick(Minecraft minecraft) {

@@ -4,7 +4,7 @@ import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.config.ClientConfig;
 import fuzs.healthbars.init.ModRegistry;
 import net.minecraft.client.gui.components.BossHealthOverlay;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntityType;
@@ -13,12 +13,12 @@ import net.minecraft.world.entity.monster.Enemy;
 
 public class HealthBarHelper {
 
-    public static ResourceLocation getBarSprite(BossEvent.BossBarColor barColor, boolean background) {
+    public static Identifier getBarSprite(BossEvent.BossBarColor barColor, boolean background) {
         return HealthBars.id((background ? BossHealthOverlay.BAR_BACKGROUND_SPRITES :
                 BossHealthOverlay.BAR_PROGRESS_SPRITES)[barColor.ordinal()].getPath());
     }
 
-    public static ResourceLocation getOverlaySprite(BossEvent.BossBarOverlay barOverlay, boolean background) {
+    public static Identifier getOverlaySprite(BossEvent.BossBarOverlay barOverlay, boolean background) {
         return HealthBars.id((background ? BossHealthOverlay.OVERLAY_BACKGROUND_SPRITES :
                 BossHealthOverlay.OVERLAY_PROGRESS_SPRITES)[barOverlay.ordinal() - 1].getPath());
     }

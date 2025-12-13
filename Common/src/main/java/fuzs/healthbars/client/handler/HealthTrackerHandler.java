@@ -1,10 +1,10 @@
 package fuzs.healthbars.client.handler;
 
 import fuzs.healthbars.HealthBars;
-import fuzs.healthbars.world.entity.HealthTracker;
 import fuzs.healthbars.client.particle.DamageValueParticle;
 import fuzs.healthbars.config.ClientConfig;
 import fuzs.healthbars.init.ModRegistry;
+import fuzs.healthbars.world.entity.HealthTracker;
 import fuzs.puzzleslib.api.client.util.v1.ClientParticleHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -33,7 +33,7 @@ public class HealthTrackerHandler {
     private static void addDamageValueParticle(Entity entity, int healthDelta) {
         Minecraft minecraft = Minecraft.getInstance();
         Vec3 entityLocation = entity.position().add(0.0F, entity.getBbHeight() / 2.0F, 0.0F);
-        Vec3 cameraLocation = minecraft.gameRenderer.getMainCamera().getPosition();
+        Vec3 cameraLocation = minecraft.gameRenderer.getMainCamera().position();
         double offsetBy = entity.getBbWidth();
         Vec3 offset = cameraLocation.subtract(entityLocation).normalize().scale(offsetBy);
         Vec3 pos = entityLocation.add(offset);

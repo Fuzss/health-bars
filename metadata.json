@@ -1,0 +1,61 @@
+{
+    "mod": {
+        "id": "healthbars",
+        "group": "fuzs.healthbars",
+        "name": "Health Bars",
+        "version": "21.11.0",
+        "authors": [
+            "Fuzs"
+        ],
+        "description": "See every mob's health in style. In the HUD and in-world. Clean, colorful, and customizable!",
+        "license": "MPL-2.0"
+    },
+    "dependencies": [
+        {
+            "name": "fabricapi",
+            "type": "required",
+            "platforms": [
+                "fabric"
+            ]
+        },
+        {
+            "name": "forgeconfigapiport",
+            "type": "required",
+            "platforms": [
+                "fabric"
+            ]
+        },
+        {
+            "name": "puzzleslib",
+            "type": "required",
+            "platforms": [
+                "fabric",
+                "neoforge"
+            ]
+        }
+    ],
+    "links": [
+        {
+            "name": "curseforge",
+            "slug": "health-bars",
+            "id": "1367734"
+        },
+        {
+            "name": "github",
+            "slug": "healthbars"
+        },
+        {
+            "name": "modrinth",
+            "slug": "health-bars",
+            "id": "A3VSiTms"
+        }
+    ],
+    "environments": {
+        "client": "required",
+        "server": "unsupported"
+    },
+    "platforms": [
+        "fabric",
+        "neoforge"
+    ]
+}

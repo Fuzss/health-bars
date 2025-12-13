@@ -4,21 +4,22 @@ import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import fuzs.healthbars.client.renderer.ModRenderType;
+import fuzs.healthbars.client.renderer.ModRenderTypes;
 import fuzs.puzzleslib.api.client.gui.v2.GuiGraphicsHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -76,7 +77,7 @@ public interface GraphicsLayer {
 
     void drawString8xOutline(Font font, Component text, int x, int y, int color, int packedLight);
 
-    void blitSprite(@Nullable Function<ResourceLocation, RenderType> renderTypeGetter, ResourceLocation resourceLocation, int x, int y, int width, int height, int color, int packedLight);
+    void blitSprite(@Nullable Function<Identifier, RenderType> renderTypeGetter, Identifier identifier, int x, int y, int width, int height, int color, int packedLight);
 
     record Gui(GuiGraphics guiGraphics) implements GraphicsLayer {
 
@@ -111,10 +112,10 @@ public interface GraphicsLayer {
         }
 
         @Override
-        public void blitSprite(@Nullable Function<ResourceLocation, RenderType> renderTypeGetter, ResourceLocation resourceLocation, int x, int y, int width, int height, int color, int packedLight) {
+        public void blitSprite(@Nullable Function<Identifier, RenderType> renderTypeGetter, Identifier identifier, int x, int y, int width, int height, int color, int packedLight) {
             Preconditions.checkArgument(renderTypeGetter == null);
             Preconditions.checkArgument(packedLight == PACKED_LIGHT);
-            this.guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, resourceLocation, x, y, width, height, color);
+            this.guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, identifier, x, y, width, height, color);
         }
     }
 
@@ -134,8 +135,8 @@ public interface GraphicsLayer {
 
         @Override
         public RenderType getTextBackgroundRenderType(Font.DisplayMode displayMode) {
-            return displayMode == Font.DisplayMode.SEE_THROUGH ? RenderType.textBackgroundSeeThrough() :
-                    ModRenderType.textBackground();
+            return displayMode == Font.DisplayMode.SEE_THROUGH ? RenderTypes.textBackgroundSeeThrough() :
+                    ModRenderTypes.textBackground();
         }
 
         @Override
@@ -193,12 +194,12 @@ public interface GraphicsLayer {
 
         @SuppressWarnings("DataFlowIssue")
         @Override
-        public void blitSprite(@Nullable Function<ResourceLocation, RenderType> renderTypeGetter, ResourceLocation resourceLocation, int x, int y, int width, int height, int color, int packedLight) {
+        public void blitSprite(@Nullable Function<Identifier, RenderType> renderTypeGetter, Identifier identifier, int x, int y, int width, int height, int color, int packedLight) {
             Objects.requireNonNull(renderTypeGetter, "render type getter is null");
             // set the gui render state to null, so we get a NullPointerException whenever it is used, which are all the calls we need to redirect to the node collector
-            GuiGraphics guiGraphics = new GuiGraphics(Minecraft.getInstance(), null) {
+            GuiGraphics guiGraphics = new GuiGraphics(Minecraft.getInstance(), null, -1, -1) {
                 @Override
-                protected void innerBlit(RenderPipeline pipeline, ResourceLocation atlasLocation, int x1, int x2, int y1, int y2, float minU, float maxU, float minV, float maxV, int color) {
+                protected void innerBlit(RenderPipeline pipeline, Identifier atlasLocation, int x1, int x2, int y1, int y2, float minU, float maxU, float minV, float maxV, int color) {
                     Preconditions.checkArgument(pipeline == null);
                     Preconditions.checkArgument(Objects.equals(atlasLocation, Sheets.GUI_SHEET));
                     RenderType renderType = renderTypeGetter.apply(atlasLocation);
@@ -228,7 +229,7 @@ public interface GraphicsLayer {
                 /**
                  * Vanilla has refactored this method in 1.21.9 to use a separate {@link net.minecraft.client.gui.render.state.TiledBlitRenderState}.
                  * <p>
-                 * This copies the old implementation from 1.21.8, so everything can still run through {@link #innerBlit(RenderPipeline, ResourceLocation, int, int, int, int, float, float, float, float, int)}
+                 * This copies the old implementation from 1.21.8, so everything can still run through {@link #innerBlit(RenderPipeline, Identifier, int, int, int, int, float, float, float, float, int)}
                  */
                 @Override
                 public void blitTiledSprite(RenderPipeline pipeline, TextureAtlasSprite sprite, int x, int y, int width, int height, int u, int v, int spriteWidth, int spriteHeight, int textureWidth, int textureHeight, int color) {
@@ -260,7 +261,7 @@ public interface GraphicsLayer {
                 }
             };
             // the pipeline is set to null on purpose, so we can check in our implementation that the call is indeed coming from us
-            guiGraphics.blitSprite(null, resourceLocation, x, y, width, height, color);
+            guiGraphics.blitSprite(null, identifier, x, y, width, height, color);
         }
     }
 }

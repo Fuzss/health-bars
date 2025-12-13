@@ -5,17 +5,17 @@ import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.client.gui.GraphicsLayer;
 import fuzs.healthbars.client.helper.EntityVisibilityHelper;
 import fuzs.healthbars.client.helper.HealthBarRenderHelper;
-import fuzs.healthbars.world.entity.HealthTracker;
 import fuzs.healthbars.client.renderer.entity.state.HealthTrackerRenderState;
 import fuzs.healthbars.config.ClientConfig;
+import fuzs.healthbars.world.entity.HealthTracker;
 import fuzs.puzzleslib.api.client.renderer.v1.RenderStateExtraData;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -78,7 +78,7 @@ public class InLevelRenderingHandler {
         return false;
     }
 
-    public static EventResult onRenderNameTag(EntityRenderer<?, ?> entityRenderer, EntityRenderState entityRenderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState cameraRenderState) {
+    public static EventResult onSubmitNameTag(EntityRenderer<?, ?> entityRenderer, EntityRenderState entityRenderState, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState cameraRenderState) {
         Component component = entityRenderState.nameTag;
         Optional<HealthTrackerRenderState> optional = RenderStateExtraData.getOrDefault(entityRenderState,
                 HEALTH_TRACKER_PROPERTY,
@@ -152,7 +152,7 @@ public class InLevelRenderingHandler {
 
     private static void submitHealthBar(GraphicsLayer graphicsLayer, int posX, int posY, HealthTrackerRenderState renderState, int color, Font.DisplayMode displayMode, int backgroundColor, int lightCoords, int outlineColor) {
         HealthBarRenderHelper.submitHealthBar(graphicsLayer,
-                displayMode == Font.DisplayMode.SEE_THROUGH ? RenderType::textSeeThrough : RenderType::text,
+                displayMode == Font.DisplayMode.SEE_THROUGH ? RenderTypes::textSeeThrough : RenderTypes::text,
                 posX,
                 posY,
                 renderState,

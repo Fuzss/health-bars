@@ -21,11 +21,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.objects.AtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class GuiRenderingHandler {
     private static final int MOB_SELECTION_BORDER_SIZE = 4;
     private static final float MOB_TITLE_SCALE = 1.5F;
     private static final Component SEPARATOR_COMPONENT = Component.literal(" \u25C7 ");
-    private static final ResourceLocation MOB_SELECTION_SPRITE = HealthBars.id("mob_selection");
+    private static final Identifier MOB_SELECTION_SPRITE = HealthBars.id("mob_selection");
 
     public static void submitHealthBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get()
@@ -238,11 +238,11 @@ public class GuiRenderingHandler {
         return getComponent(Component.literal(String.valueOf(renderState.toughnessValue)), renderState.toughnessSprite);
     }
 
-    private static Component getComponent(Component component, @Nullable ResourceLocation resourceLocation) {
+    private static Component getComponent(Component component, @Nullable Identifier identifier) {
         MutableComponent mutableComponent = Component.empty().append(component);
-        if (resourceLocation != null) {
+        if (identifier != null) {
             return mutableComponent.append(CommonComponents.SPACE)
-                    .append(Component.object(new AtlasSprite(AtlasIds.GUI, resourceLocation)).withColor(-1));
+                    .append(Component.object(new AtlasSprite(AtlasIds.GUI, identifier)).withColor(-1));
         } else {
             return mutableComponent;
         }

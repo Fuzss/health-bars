@@ -31,7 +31,10 @@ public class PickEntityHandler {
     }
 
     public static void onBeforeGameRender(Minecraft minecraft, GameRenderer gameRenderer, DeltaTracker deltaTracker) {
-        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get()) return;
+        if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get()) {
+            return;
+        }
+
         pick(minecraft, gameRenderer, deltaTracker.getGameTimeDeltaPartialTick(true));
     }
 
@@ -48,6 +51,7 @@ public class PickEntityHandler {
             if (interactionRange != -1) {
                 blockInteractionRange = entityInteractionRange = interactionRange;
             }
+
             HitResult hitResult = pick(cameraEntity, blockInteractionRange, entityInteractionRange, partialTick);
             if (hitResult instanceof EntityHitResult entityHitResult) {
                 Entity entity = EntityHelper.getPartEntityParent(entityHitResult.getEntity());
@@ -56,6 +60,7 @@ public class PickEntityHandler {
             } else if (pickDelay == 0) {
                 crosshairPickEntity = new WeakReference<>(null);
             }
+
             Profiler.get().pop();
         }
     }
@@ -114,7 +119,9 @@ public class PickEntityHandler {
 
     public static void onStartClientTick(Minecraft minecraft) {
         if (minecraft.level != null && !minecraft.isPaused()) {
-            if (pickDelay > 0) pickDelay--;
+            if (pickDelay > 0) {
+                pickDelay--;
+            }
         }
     }
 }

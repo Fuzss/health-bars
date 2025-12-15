@@ -4,7 +4,7 @@ import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.client.handler.*;
 import fuzs.healthbars.client.particle.DamageValueParticle;
 import fuzs.healthbars.client.particle.DamageValueParticleGroup;
-import fuzs.healthbars.client.renderer.ModRenderTypes;
+import fuzs.healthbars.client.renderer.rendertype.ModRenderTypes;
 import fuzs.healthbars.init.ModRegistry;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.api.client.core.v1.context.GuiLayersContext;

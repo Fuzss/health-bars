@@ -36,13 +36,13 @@
     ],
     "links": [
         {
+            "name": "github",
+            "slug": "healthbars"
+        },
+        {
             "name": "curseforge",
             "slug": "health-bars",
             "id": "1367734"
-        },
-        {
-            "name": "github",
-            "slug": "healthbars"
         },
         {
             "name": "modrinth",

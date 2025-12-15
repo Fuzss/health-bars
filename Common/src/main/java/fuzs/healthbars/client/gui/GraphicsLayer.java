@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import fuzs.healthbars.client.renderer.ModRenderTypes;
+import fuzs.healthbars.client.renderer.rendertype.ModRenderTypes;
 import fuzs.puzzleslib.api.client.gui.v2.GuiGraphicsHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

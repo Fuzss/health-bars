@@ -1,4 +1,4 @@
-package fuzs.healthbars.client.renderer;
+package fuzs.healthbars.client.renderer.rendertype;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;

@@ -1,4 +1,4 @@
-accessWidener   v2  named
+classTweaker    v2  official
 accessible  method  net/minecraft/client/player/LocalPlayer filterHitResult (Lnet/minecraft/world/phys/HitResult;Lnet/minecraft/world/phys/Vec3;D)Lnet/minecraft/world/phys/HitResult;
 extendable  method  net/minecraft/client/gui/GuiGraphics    innerBlit   (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIIIFFFFI)V
 extendable  method  net/minecraft/client/gui/GuiGraphics    blitSprite  (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIII)V

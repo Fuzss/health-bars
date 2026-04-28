@@ -2,7 +2,7 @@ package fuzs.healthbars.fabric.client;
 
 import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.client.HealthBarsClient;
-import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
+import fuzs.puzzleslib.common.api.client.core.v1.ClientModConstructor;
 import net.fabricmc.api.ClientModInitializer;
 
 public class HealthBarsFabricClient implements ClientModInitializer {

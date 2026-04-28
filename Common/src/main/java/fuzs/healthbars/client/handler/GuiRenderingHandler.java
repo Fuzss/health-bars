@@ -4,15 +4,15 @@ import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.client.gui.GraphicsLayer;
 import fuzs.healthbars.client.helper.EntityVisibilityHelper;
 import fuzs.healthbars.client.helper.HealthBarRenderHelper;
-import fuzs.healthbars.world.entity.HealthTracker;
 import fuzs.healthbars.client.renderer.entity.state.HealthTrackerRenderState;
 import fuzs.healthbars.config.ClientConfig;
-import fuzs.puzzleslib.api.client.gui.v2.AnchorPoint;
-import fuzs.puzzleslib.api.util.v1.ComponentHelper;
+import fuzs.healthbars.world.entity.HealthTracker;
+import fuzs.puzzleslib.common.api.client.gui.v2.AnchorPoint;
+import fuzs.puzzleslib.common.api.util.v1.ComponentHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.data.AtlasIds;
@@ -37,7 +37,7 @@ public class GuiRenderingHandler {
     private static final Component SEPARATOR_COMPONENT = Component.literal(" \u25C7 ");
     private static final Identifier MOB_SELECTION_SPRITE = HealthBars.id("mob_selection");
 
-    public static void submitHealthBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public static void submitHealthBar(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (!HealthBars.CONFIG.get(ClientConfig.class).anyRendering.get()
                 || !HealthBars.CONFIG.get(ClientConfig.class).guiRendering) {
             return;
@@ -77,7 +77,7 @@ public class GuiRenderingHandler {
         }
     }
 
-    private static void submitEntityDisplay(GuiGraphics guiGraphics, MutableInt posX, MutableInt posY, HealthTrackerRenderState renderState, LivingEntity livingEntity, boolean isRight) {
+    private static void submitEntityDisplay(GuiGraphicsExtractor guiGraphics, MutableInt posX, MutableInt posY, HealthTrackerRenderState renderState, LivingEntity livingEntity, boolean isRight) {
         if (isRight) {
             posX.add(renderState.barWidth + 5);
         }
@@ -96,7 +96,7 @@ public class GuiRenderingHandler {
         }
     }
 
-    private static void submitEntityDisplay(GuiGraphics guiGraphics, MutableInt posX, MutableInt posY, HealthTrackerRenderState renderState, LivingEntity livingEntity) {
+    private static void submitEntityDisplay(GuiGraphicsExtractor guiGraphics, MutableInt posX, MutableInt posY, HealthTrackerRenderState renderState, LivingEntity livingEntity) {
         // these are similar to the player size values
         float scaleWidth = 0.8F / livingEntity.getBbWidth();
         float scaleHeight = 1.8F / livingEntity.getBbHeight();
@@ -112,7 +112,7 @@ public class GuiRenderingHandler {
         int mouseY = posY.intValue() + 10;
 
         InLevelRenderingHandler.setIsRenderingInGui(true);
-        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics,
+        InventoryScreen.extractEntityInInventoryFollowsMouse(guiGraphics,
                 x1,
                 y1,
                 x2,
@@ -140,7 +140,7 @@ public class GuiRenderingHandler {
         graphicsLayer.guiGraphics().pose().scale(MOB_TITLE_SCALE, MOB_TITLE_SCALE);
         int x = (int) (posX.intValue() / MOB_TITLE_SCALE);
         int y = (int) ((posY.intValue() + 5) / MOB_TITLE_SCALE);
-        graphicsLayer.drawString(font,
+        graphicsLayer.text(font,
                 component,
                 x,
                 y,
@@ -185,7 +185,7 @@ public class GuiRenderingHandler {
         }
 
         posX.add(offsetX);
-        graphicsLayer.drawString(font,
+        graphicsLayer.text(font,
                 component,
                 posX.intValue(),
                 posY.intValue(),
@@ -254,9 +254,9 @@ public class GuiRenderingHandler {
             Component text = Component.literal(Integer.toString(Math.abs(damageAmount)));
             int stringWidth = font.width(text) / 2;
             if (damageValues.strongTextOutline) {
-                graphicsLayer.drawString8xOutline(font, text, posX - stringWidth, posY, fontColor, packedLight);
+                graphicsLayer.text8xOutline(font, text, posX - stringWidth, posY, fontColor, packedLight);
             } else {
-                graphicsLayer.drawString(font,
+                graphicsLayer.text(font,
                         text,
                         posX - stringWidth,
                         posY,

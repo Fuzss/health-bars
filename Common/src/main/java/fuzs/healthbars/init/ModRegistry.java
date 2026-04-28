@@ -2,10 +2,10 @@ package fuzs.healthbars.init;
 
 import fuzs.healthbars.HealthBars;
 import fuzs.healthbars.world.entity.HealthTracker;
-import fuzs.puzzleslib.api.attachment.v4.DataAttachmentRegistry;
-import fuzs.puzzleslib.api.attachment.v4.DataAttachmentType;
-import fuzs.puzzleslib.api.init.v3.registry.RegistryManager;
-import fuzs.puzzleslib.api.init.v3.tags.TagFactory;
+import fuzs.puzzleslib.common.api.attachment.v4.DataAttachmentRegistry;
+import fuzs.puzzleslib.common.api.attachment.v4.DataAttachmentType;
+import fuzs.puzzleslib.common.api.init.v3.registry.RegistryManager;
+import fuzs.puzzleslib.common.api.init.v3.tags.TagFactory;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.tags.TagKey;

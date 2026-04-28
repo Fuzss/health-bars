@@ -1,9 +1,10 @@
 {
+    "minecraft": "26.1.2",
     "mod": {
         "id": "healthbars",
         "group": "fuzs.healthbars",
         "name": "Health Bars",
-        "version": "21.11.0",
+        "version": "26.1.0",
         "authors": [
             "Fuzs"
         ],
@@ -36,13 +37,13 @@
     ],
     "links": [
         {
-            "name": "github",
-            "slug": "healthbars"
-        },
-        {
             "name": "curseforge",
             "slug": "health-bars",
             "id": "1367734"
+        },
+        {
+            "name": "github",
+            "slug": "health-bars"
         },
         {
             "name": "modrinth",

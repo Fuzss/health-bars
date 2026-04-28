@@ -87,7 +87,7 @@ public class HealthBarRenderHelper {
         if (singleLineOnly(font, component, renderState)) {
             posY -= offsetY;
             posX -= (renderState.barWidth / 2);
-            graphicsLayer.drawString(font,
+            graphicsLayer.text(font,
                     renderState.displayName,
                     posX + 1,
                     posY,
@@ -98,7 +98,7 @@ public class HealthBarRenderHelper {
                     lightCoords,
                     outlineColor);
             posX += renderState.barWidth - 1 - font.width(component);
-            graphicsLayer.drawString(font,
+            graphicsLayer.text(font,
                     component,
                     posX,
                     posY,
@@ -111,7 +111,7 @@ public class HealthBarRenderHelper {
         } else {
             if (HealthBars.CONFIG.get(ClientConfig.class).level.renderAttributeComponents) {
                 posY -= offsetY;
-                graphicsLayer.drawCenteredString(font,
+                graphicsLayer.centeredText(font,
                         component,
                         posX,
                         posY,
@@ -125,7 +125,7 @@ public class HealthBarRenderHelper {
 
             if (HealthBars.CONFIG.get(ClientConfig.class).level.renderTitleComponent) {
                 posY -= offsetY;
-                graphicsLayer.drawCenteredString(font,
+                graphicsLayer.centeredText(font,
                         renderState.displayName,
                         posX,
                         posY,

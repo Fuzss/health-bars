@@ -1,11 +1,11 @@
 classTweaker    v2  official
 accessible  method  net/minecraft/client/player/LocalPlayer filterHitResult (Lnet/minecraft/world/phys/HitResult;Lnet/minecraft/world/phys/Vec3;D)Lnet/minecraft/world/phys/HitResult;
-extendable  method  net/minecraft/client/gui/GuiGraphics    innerBlit   (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIIIFFFFI)V
-extendable  method  net/minecraft/client/gui/GuiGraphics    blitSprite  (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIII)V
-extendable  method  net/minecraft/client/gui/GuiGraphics    blitTiledSprite (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIIIII)V
+extendable  method  net/minecraft/client/gui/GuiGraphicsExtractor   innerBlit   (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIIIFFFFI)V
+extendable  method  net/minecraft/client/gui/GuiGraphicsExtractor   blitSprite  (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIII)V
+extendable  method  net/minecraft/client/gui/GuiGraphicsExtractor   blitTiledSprite (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIIIII)V
 accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   BAR_BACKGROUND_SPRITES  [Lnet/minecraft/resources/Identifier;
 accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   BAR_PROGRESS_SPRITES    [Lnet/minecraft/resources/Identifier;
 accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   OVERLAY_BACKGROUND_SPRITES  [Lnet/minecraft/resources/Identifier;
 accessible  field   net/minecraft/client/gui/components/BossHealthOverlay   OVERLAY_PROGRESS_SPRITES    [Lnet/minecraft/resources/Identifier;
-accessible  method  net/minecraft/client/renderer/entity/EntityRenderer shouldShowName  (Lnet/minecraft/world/entity/Entity;D)Z
-transitive-accessible   method  net/minecraft/client/renderer/rendertype/RenderType create  (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)Lnet/minecraft/client/renderer/rendertype/RenderType;
+#accessible  method  net/minecraft/client/renderer/entity/EntityRenderer shouldShowName  (Lnet/minecraft/world/entity/Entity;D)Z
+#transitive-accessible   method  net/minecraft/client/renderer/rendertype/RenderType create  (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)Lnet/minecraft/client/renderer/rendertype/RenderType;

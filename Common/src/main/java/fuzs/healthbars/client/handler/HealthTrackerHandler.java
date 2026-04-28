@@ -5,7 +5,7 @@ import fuzs.healthbars.client.particle.DamageValueParticle;
 import fuzs.healthbars.config.ClientConfig;
 import fuzs.healthbars.init.ModRegistry;
 import fuzs.healthbars.world.entity.HealthTracker;
-import fuzs.puzzleslib.api.client.util.v1.ClientParticleHelper;
+import fuzs.puzzleslib.common.api.client.util.v1.ClientParticleHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;

@@ -5,10 +5,10 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import fuzs.healthbars.client.renderer.rendertype.ModRenderTypes;
-import fuzs.puzzleslib.api.client.gui.v2.GuiGraphicsHelper;
+import fuzs.puzzleslib.common.api.client.gui.v2.GuiGraphicsHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -33,21 +33,13 @@ public interface GraphicsLayer {
 
     void fill(@Nullable RenderType renderType, int minX, int minY, int maxX, int maxY, float zOffset, int color, int packedLight);
 
-    void drawString(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor);
+    void text(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor);
 
-    default void drawCenteredString(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor) {
-        this.drawString(font,
-                text,
-                x - font.width(text) / 2,
-                y,
-                color,
-                drawShadow,
-                displayMode,
-                packedLight,
-                outlineColor);
+    default void centeredText(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor) {
+        this.text(font, text, x - font.width(text) / 2, y, color, drawShadow, displayMode, packedLight, outlineColor);
     }
 
-    default void drawString(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int backgroundColor, int packedLight, int outlineColor) {
+    default void text(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int backgroundColor, int packedLight, int outlineColor) {
         if (backgroundColor != 0) {
             this.fill(this.getTextBackgroundRenderType(displayMode),
                     x - 2,
@@ -59,11 +51,11 @@ public interface GraphicsLayer {
                     packedLight);
         }
 
-        this.drawString(font, text, x, y, color, drawShadow, displayMode, packedLight, outlineColor);
+        this.text(font, text, x, y, color, drawShadow, displayMode, packedLight, outlineColor);
     }
 
-    default void drawCenteredString(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int backgroundColor, int packedLight, int outlineColor) {
-        this.drawString(font,
+    default void centeredText(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int backgroundColor, int packedLight, int outlineColor) {
+        this.text(font,
                 text,
                 x - font.width(text) / 2,
                 y,
@@ -75,11 +67,11 @@ public interface GraphicsLayer {
                 outlineColor);
     }
 
-    void drawString8xOutline(Font font, Component text, int x, int y, int color, int packedLight);
+    void text8xOutline(Font font, Component text, int x, int y, int color, int packedLight);
 
     void blitSprite(@Nullable Function<Identifier, RenderType> renderTypeGetter, Identifier identifier, int x, int y, int width, int height, int color, int packedLight);
 
-    record Gui(GuiGraphics guiGraphics) implements GraphicsLayer {
+    record Gui(GuiGraphicsExtractor guiGraphics) implements GraphicsLayer {
 
         @Override
         public void translate(float zOffset) {
@@ -99,14 +91,14 @@ public interface GraphicsLayer {
         }
 
         @Override
-        public void drawString(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor) {
+        public void text(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor) {
             Preconditions.checkArgument(displayMode == Font.DisplayMode.NORMAL);
             Preconditions.checkArgument(packedLight == PACKED_LIGHT);
-            this.guiGraphics.drawString(font, text, x, y, color, drawShadow);
+            this.guiGraphics.text(font, text, x, y, color, drawShadow);
         }
 
         @Override
-        public void drawString8xOutline(Font font, Component text, int x, int y, int color, int packedLight) {
+        public void text8xOutline(Font font, Component text, int x, int y, int color, int packedLight) {
             Preconditions.checkArgument(packedLight == PACKED_LIGHT);
             GuiGraphicsHelper.drawInBatch8xOutline(this.guiGraphics, font, text, x, y, color, ARGB.opaque(0));
         }
@@ -163,7 +155,7 @@ public interface GraphicsLayer {
         }
 
         @Override
-        public void drawString(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor) {
+        public void text(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor) {
             this.nodeCollector.order(1)
                     .submitText(this.poseStack,
                             x,
@@ -178,7 +170,7 @@ public interface GraphicsLayer {
         }
 
         @Override
-        public void drawString8xOutline(Font font, Component text, int x, int y, int color, int packedLight) {
+        public void text8xOutline(Font font, Component text, int x, int y, int color, int packedLight) {
             this.nodeCollector.order(1)
                     .submitText(this.poseStack,
                             x,
@@ -197,9 +189,9 @@ public interface GraphicsLayer {
         public void blitSprite(@Nullable Function<Identifier, RenderType> renderTypeGetter, Identifier identifier, int x, int y, int width, int height, int color, int packedLight) {
             Objects.requireNonNull(renderTypeGetter, "render type getter is null");
             // set the gui render state to null, so we get a NullPointerException whenever it is used, which are all the calls we need to redirect to the node collector
-            GuiGraphics guiGraphics = new GuiGraphics(Minecraft.getInstance(), null, -1, -1) {
+            GuiGraphicsExtractor guiGraphics = new GuiGraphicsExtractor(Minecraft.getInstance(), null, -1, -1) {
                 @Override
-                protected void innerBlit(RenderPipeline pipeline, Identifier atlasLocation, int x1, int x2, int y1, int y2, float minU, float maxU, float minV, float maxV, int color) {
+                public void innerBlit(RenderPipeline pipeline, Identifier atlasLocation, int x1, int x2, int y1, int y2, float minU, float maxU, float minV, float maxV, int color) {
                     Preconditions.checkArgument(pipeline == null);
                     Preconditions.checkArgument(Objects.equals(atlasLocation, Sheets.GUI_SHEET));
                     RenderType renderType = renderTypeGetter.apply(atlasLocation);

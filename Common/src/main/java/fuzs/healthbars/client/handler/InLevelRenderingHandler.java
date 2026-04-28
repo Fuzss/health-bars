@@ -8,15 +8,15 @@ import fuzs.healthbars.client.helper.HealthBarRenderHelper;
 import fuzs.healthbars.client.renderer.entity.state.HealthTrackerRenderState;
 import fuzs.healthbars.config.ClientConfig;
 import fuzs.healthbars.world.entity.HealthTracker;
-import fuzs.puzzleslib.api.client.renderer.v1.RenderStateExtraData;
-import fuzs.puzzleslib.api.event.v1.core.EventResult;
+import fuzs.puzzleslib.common.api.client.renderer.v1.RenderStateExtraData;
+import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
@@ -40,7 +40,7 @@ public class InLevelRenderingHandler {
         InLevelRenderingHandler.isRenderingInGui = isRenderingInGui;
     }
 
-    public static void onExtractRenderState(Entity entity, EntityRenderState entityRenderState, float partialTick) {
+    public static void onExtractEntityRenderState(Entity entity, EntityRenderState entityRenderState, float partialTick) {
         if (entity instanceof LivingEntity livingEntity && canBarRender(livingEntity, partialTick)) {
             HealthTracker healthTracker = HealthTracker.getHealthTracker(livingEntity, false);
             if (healthTracker != null) {

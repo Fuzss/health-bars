@@ -1,6 +1,8 @@
 package fuzs.healthbars.client.renderer.rendertype;
 
+import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import fuzs.healthbars.HealthBars;
@@ -20,7 +22,7 @@ public final class ModRenderTypes {
             .withVertexShader("core/rendertype_text_background")
             .withFragmentShader("core/rendertype_text_background")
             .withSampler("Sampler2")
-            .withDepthWrite(false)
+            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
             .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, VertexFormat.Mode.QUADS)
             .build();
     /**

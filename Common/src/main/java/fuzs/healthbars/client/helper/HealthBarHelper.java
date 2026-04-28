@@ -42,7 +42,7 @@ public class HealthBarHelper {
         EntityType<?> entityType = livingEntity.getType();
         if (entityType == EntityType.ENDER_DRAGON) {
             return BossEvent.BossBarColor.PINK;
-        } else if (entityType.is(ModRegistry.BOSSES_ENTITY_TYPE_TAG)) {
+        } else if (entityType.builtInRegistryHolder().is(ModRegistry.BOSSES_ENTITY_TYPE_TAG)) {
             return BossEvent.BossBarColor.PURPLE;
         } else {
             if (livingEntity instanceof Enemy) {

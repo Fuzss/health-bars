@@ -6,16 +6,16 @@ import fuzs.healthbars.client.particle.DamageValueParticle;
 import fuzs.healthbars.client.particle.DamageValueParticleGroup;
 import fuzs.healthbars.client.renderer.rendertype.ModRenderTypes;
 import fuzs.healthbars.init.ModRegistry;
-import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
-import fuzs.puzzleslib.api.client.core.v1.context.GuiLayersContext;
-import fuzs.puzzleslib.api.client.core.v1.context.KeyMappingsContext;
-import fuzs.puzzleslib.api.client.core.v1.context.ParticleProvidersContext;
-import fuzs.puzzleslib.api.client.core.v1.context.RenderPipelinesContext;
-import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
-import fuzs.puzzleslib.api.client.event.v1.renderer.ExtractRenderStateCallback;
-import fuzs.puzzleslib.api.client.event.v1.renderer.GameRenderEvents;
-import fuzs.puzzleslib.api.client.event.v1.renderer.SubmitNameTagCallback;
-import fuzs.puzzleslib.api.event.v1.entity.EntityTickEvents;
+import fuzs.puzzleslib.common.api.client.core.v1.ClientModConstructor;
+import fuzs.puzzleslib.common.api.client.core.v1.context.GuiLayersContext;
+import fuzs.puzzleslib.common.api.client.core.v1.context.KeyMappingsContext;
+import fuzs.puzzleslib.common.api.client.core.v1.context.ParticleProvidersContext;
+import fuzs.puzzleslib.common.api.client.core.v1.context.RenderPipelinesContext;
+import fuzs.puzzleslib.common.api.client.event.v1.ClientTickEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.ExtractEntityRenderStateCallback;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.GameRenderEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.SubmitNameTagCallback;
+import fuzs.puzzleslib.common.api.event.v1.entity.EntityTickEvents;
 
 public class HealthBarsClient implements ClientModConstructor {
 
@@ -27,7 +27,7 @@ public class HealthBarsClient implements ClientModConstructor {
     private static void registerEventHandlers() {
         GameRenderEvents.BEFORE.register(PickEntityHandler::onBeforeGameRender);
         ClientTickEvents.START.register(PickEntityHandler::onStartClientTick);
-        ExtractRenderStateCallback.EVENT.register(InLevelRenderingHandler::onExtractRenderState);
+        ExtractEntityRenderStateCallback.EVENT.register(InLevelRenderingHandler::onExtractEntityRenderState);
         SubmitNameTagCallback.EVENT.register(InLevelRenderingHandler::onSubmitNameTag);
         EntityTickEvents.END.register(HealthTrackerHandler::onEndEntityTick);
     }

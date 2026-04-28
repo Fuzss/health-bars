@@ -1,11 +1,11 @@
 package fuzs.healthbars.config;
 
-import fuzs.puzzleslib.api.client.gui.v2.AnchorPoint;
-import fuzs.puzzleslib.api.config.v3.Config;
-import fuzs.puzzleslib.api.config.v3.ConfigCore;
-import fuzs.puzzleslib.api.config.v3.ValueCallback;
-import fuzs.puzzleslib.api.config.v3.serialization.ConfigDataSet;
-import fuzs.puzzleslib.api.config.v3.serialization.KeyedValueProvider;
+import fuzs.puzzleslib.common.api.client.gui.v2.AnchorPoint;
+import fuzs.puzzleslib.common.api.config.v3.Config;
+import fuzs.puzzleslib.common.api.config.v3.ConfigCore;
+import fuzs.puzzleslib.common.api.config.v3.ValueCallback;
+import fuzs.puzzleslib.common.api.config.v3.serialization.ConfigDataSet;
+import fuzs.puzzleslib.common.api.config.v3.serialization.KeyedValueProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.ARGB;

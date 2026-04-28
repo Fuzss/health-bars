@@ -1,6 +1,6 @@
 package fuzs.healthbars.fabric;
 
-import fuzs.healthbars.HealthBars;
+import fuzs.healthbars.common.HealthBars;
 import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
 import net.fabricmc.api.ModInitializer;
 

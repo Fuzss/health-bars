@@ -1,0 +1,20 @@
+package fuzs.healthbars.common.data.client;
+
+import fuzs.healthbars.common.HealthBars;
+import fuzs.healthbars.common.client.handler.KeyBindingHandler;
+import fuzs.puzzleslib.common.api.client.data.v2.AbstractLanguageProvider;
+import fuzs.puzzleslib.common.api.data.v2.core.DataProviderContext;
+
+public class ModLanguageProvider extends AbstractLanguageProvider {
+
+    public ModLanguageProvider(DataProviderContext context) {
+        super(context);
+    }
+
+    @Override
+    public void addTranslations(TranslationBuilder builder) {
+        builder.addKeyCategory(HealthBars.MOD_ID, HealthBars.MOD_NAME);
+        builder.add(KeyBindingHandler.TOGGLE_HEALTH_BARS_KEY_MAPPING, "Toggle Health Bars");
+        builder.add(KeyBindingHandler.KEY_STATUS_MESSAGE, "Render Health Bars: %s");
+    }
+}

@@ -33,7 +33,7 @@ public class HealthTrackerHandler {
     private static void addDamageValueParticle(Entity entity, int healthDelta) {
         Minecraft minecraft = Minecraft.getInstance();
         Vec3 entityLocation = entity.position().add(0.0F, entity.getBbHeight() / 2.0F, 0.0F);
-        Vec3 cameraLocation = minecraft.gameRenderer.getMainCamera().position();
+        Vec3 cameraLocation = minecraft.gameRenderer.mainCamera().position();
         double offsetBy = entity.getBbWidth();
         Vec3 offset = cameraLocation.subtract(entityLocation).normalize().scale(offsetBy);
         Vec3 pos = entityLocation.add(offset);

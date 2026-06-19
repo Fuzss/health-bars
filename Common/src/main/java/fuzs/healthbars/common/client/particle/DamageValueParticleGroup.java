@@ -20,7 +20,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public class DamageValueParticleGroup extends ParticleGroup<DamageValueParticle> {
-    public static final ParticleRenderType GROUP = new ParticleRenderType(HealthBars.id("damage_values").toString());
+    public static final ParticleRenderType GROUP = new ParticleRenderType(HealthBars.id("damage_values").toString(),
+            "DV");
 
     public DamageValueParticleGroup(ParticleEngine particleEngine) {
         super(particleEngine);

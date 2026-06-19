@@ -1,7 +1,7 @@
 package fuzs.healthbars.common.client.helper;
 
 import fuzs.healthbars.common.HealthBars;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,11 +18,11 @@ public class GuiSpritesHelper {
         return isMount(livingEntity) ? HEART_VEHICLE_FULL_SPRITE : getSprite(forEntity(livingEntity), livingEntity);
     }
 
-    public static Identifier getSprite(Gui.HeartType heartType) {
+    public static Identifier getSprite(Hud.HeartType heartType) {
         return getSprite(heartType, null);
     }
 
-    private static Identifier getSprite(Gui.HeartType heartType, @Nullable LivingEntity livingEntity) {
+    private static Identifier getSprite(Hud.HeartType heartType, @Nullable LivingEntity livingEntity) {
         Identifier identifier = heartType.getSprite(isHardcore(livingEntity), false, false);
         return HealthBars.id(identifier.getPath());
     }
@@ -38,19 +38,19 @@ public class GuiSpritesHelper {
     /**
      * Most of these do not even work, as mobs effects are only synced to the client for the local player.
      *
-     * @see net.minecraft.client.gui.Gui.HeartType#forPlayer(Player)
+     * @see net.minecraft.client.gui.Hud.HeartType#forPlayer(Player)
      */
-    private static Gui.HeartType forEntity(LivingEntity livingEntity) {
+    private static Hud.HeartType forEntity(LivingEntity livingEntity) {
         if (livingEntity.hasEffect(MobEffects.POISON)) {
-            return Gui.HeartType.POISIONED;
+            return Hud.HeartType.POISIONED;
         } else if (livingEntity.hasEffect(MobEffects.WITHER)) {
-            return Gui.HeartType.WITHERED;
+            return Hud.HeartType.WITHERED;
         } else if (livingEntity.isFullyFrozen()) {
-            return Gui.HeartType.FROZEN;
+            return Hud.HeartType.FROZEN;
         } else if (livingEntity.getAbsorptionAmount() > 0.0F) {
-            return Gui.HeartType.ABSORBING;
+            return Hud.HeartType.ABSORBING;
         } else {
-            return Gui.HeartType.NORMAL;
+            return Hud.HeartType.NORMAL;
         }
     }
 }

@@ -7,7 +7,7 @@ import net.minecraft.client.gui.components.BossHealthOverlay;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypeIds;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
 
@@ -39,21 +39,20 @@ public class HealthBarHelper {
     }
 
     public static BossEvent.BossBarColor getBarColor(LivingEntity livingEntity, ClientConfig.BarColors barColors) {
-        EntityType<?> entityType = livingEntity.getType();
-        if (entityType == EntityType.ENDER_DRAGON) {
+        if (livingEntity.is(EntityTypeIds.ENDER_DRAGON)) {
             return BossEvent.BossBarColor.PINK;
-        } else if (entityType.builtInRegistryHolder().is(ModRegistry.BOSSES_ENTITY_TYPE_TAG)) {
+        } else if (livingEntity.is(ModRegistry.BOSSES_ENTITY_TYPE_TAG)) {
             return BossEvent.BossBarColor.PURPLE;
         } else {
             if (livingEntity instanceof Enemy) {
                 return barColors.monsterColor;
             } else {
-                return switch (entityType.getCategory()) {
+                return switch (livingEntity.getType().getCategory()) {
                     case MONSTER -> barColors.monsterColor;
                     case AMBIENT, MISC -> barColors.ambientColor;
                     case WATER_AMBIENT, WATER_CREATURE, UNDERGROUND_WATER_CREATURE, AXOLOTLS -> barColors.aquaticColor;
                     case CREATURE -> barColors.friendlyColor;
-                    // this can be extended on NeoForge, so we need a default branch (hoping the compiler does not remove it)
+                    // This can be extended on NeoForge, so we need a default branch (hoping the compiler does not remove it).
                     default -> barColors.miscColor;
                 };
             }

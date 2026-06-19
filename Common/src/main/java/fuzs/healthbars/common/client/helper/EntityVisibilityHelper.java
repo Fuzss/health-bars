@@ -65,7 +65,8 @@ public class EntityVisibilityHelper {
             }
         }
 
-        return Minecraft.renderNames() && entity != minecraft.getCameraEntity() && isVisible && !entity.isVehicle();
+        return !minecraft.gui.hud.isHidden() && entity != minecraft.getCameraEntity() && isVisible
+                && !entity.isVehicle();
     }
 
     private static boolean isVisibleToPlayer(LivingEntity entity, Player player) {

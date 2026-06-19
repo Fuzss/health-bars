@@ -6,12 +6,13 @@ import fuzs.puzzleslib.common.api.config.v3.ConfigCore;
 import fuzs.puzzleslib.common.api.config.v3.ValueCallback;
 import fuzs.puzzleslib.common.api.config.v3.serialization.ConfigDataSet;
 import fuzs.puzzleslib.common.api.config.v3.serialization.KeyedValueProvider;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypeIds;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
@@ -31,18 +32,22 @@ public class ClientConfig implements ConfigCore {
             "The raytrace range for finding a picked entity.",
             "Setting this to -1 will make it use the player entity interaction range, which is 3 in survival."
     })
-    @Config.IntRange(min = -1, max = 128) public int pickedEntityInteractionRange = 16;
+    @Config.IntRange(min = -1, max = 128)
+    public int pickedEntityInteractionRange = 16;
     @Config(category = KEY_GENERAL_CATEGORY, description = {
             "Coyote time in seconds after which a no longer picked entity will still show the health bar.",
             "Set to -1 to keep the old entity until a new one is picked by the crosshair."
     })
-    @Config.IntRange(min = -1) public int pickedEntityDelay = 2;
+    @Config.IntRange(min = -1)
+    public int pickedEntityDelay = 2;
     @Config(category = KEY_GENERAL_CATEGORY, description = "Hide health bar when the mob has full health.")
     public boolean hideAtFullHealth = false;
     @Config(category = KEY_GENERAL_CATEGORY,
             name = "no_health_bar_mobs",
             description = {"Entities that may never show a health bar.", ConfigDataSet.CONFIG_DESCRIPTION})
-    List<String> noHealthBarMobsRaw = KeyedValueProvider.asString(Registries.ENTITY_TYPE, EntityType.ARMOR_STAND);
+    List<String> noHealthBarMobsRaw = KeyedValueProvider.<EntityType<?>>tags()
+            .add(EntityTypeIds.ARMOR_STAND)
+            .asStringList();
 
     public ModConfigSpec.ConfigValue<Boolean> anyRendering;
     public ConfigDataSet<EntityType<?>> noHealthBarMobs;
@@ -74,7 +79,8 @@ public class ClientConfig implements ConfigCore {
         @Config(description = "Options controlling how recently received damage / gained health is shown.")
         public final DamageValues damageValues = new DamageValues();
         @Config(description = "The default width multiplier for the health bar display.")
-        @Config.IntRange(min = 1, max = 4) public int healthBarColumns = 3;
+        @Config.IntRange(min = 1, max = 4)
+        public int healthBarColumns = 3;
         @Config(description = "Increase the health bar width for mobs with a lot of health, like bosses.")
         public boolean scaleBarWidthByHealth = true;
         @Config(description = "Allow rendering attribute values such as health.")
@@ -87,9 +93,11 @@ public class ClientConfig implements ConfigCore {
 
     public static class Gui extends BarConfig {
         @Config(description = "Offset in pixels on the horizontal axis from the screen border.")
-        @Config.IntRange(min = 0) public int offsetWidth = 9;
+        @Config.IntRange(min = 0)
+        public int offsetWidth = 9;
         @Config(description = "Offset in pixels on the vertical axis from the screen border.")
-        @Config.IntRange(min = 0) public int offsetHeight = 9;
+        @Config.IntRange(min = 0)
+        public int offsetHeight = 9;
         @Config(description = "Choose a position on the screen to show the interface at.")
         public AnchorPoint anchorPoint = AnchorPoint.TOP_LEFT;
         @Config(description = "Allow rendering the visual mob display as part of the health bar overlay.")
@@ -145,7 +153,8 @@ public class ClientConfig implements ConfigCore {
         @Config(description = "Dynamically increase health bar size the further away the camera is to simplify readability.")
         public boolean scaleWithDistance = true;
         @Config(description = "Distance to the mob at which health bars will still be visible. The distance is halved when the mob is crouching.")
-        @Config.IntRange(min = 0) public int maxRenderDistance = 32;
+        @Config.IntRange(min = 0)
+        public int maxRenderDistance = 32;
         @Config(description = "Allow rendering the mob display name above the health bar. This will replace the vanilla name plate rendering.")
         public boolean renderTitleComponent = true;
         @Config(description = "Always render health bars with full brightness to be most visible, ignoring local lighting conditions.")
@@ -164,15 +173,15 @@ public class ClientConfig implements ConfigCore {
         @Config(description = "Allow values from receiving damage or healing to show.")
         public boolean renderDamageValues = true;
         @Config(description = "The text color when displaying negative values, when the entity has received damage.")
-        public ChatFormatting damageColor = ChatFormatting.RED;
+        public DyeColor damageColor = DyeColor.RED;
         @Config(description = "The text color when displaying positive values, when the entity has healed.")
-        public ChatFormatting healColor = ChatFormatting.GREEN;
+        public DyeColor healColor = DyeColor.GREEN;
         @Config(description = "Draw a bold black outline around damage values, just like the experience level in the player hud.")
         public boolean strongTextOutline = true;
 
         public int getTextColor(int damageAmount) {
-            ChatFormatting chatFormatting = damageAmount > 0 ? this.healColor : this.damageColor;
-            return chatFormatting.isColor() ? ARGB.opaque(chatFormatting.getColor()) : -1;
+            DyeColor color = damageAmount > 0 ? this.healColor : this.damageColor;
+            return ARGB.opaque(color.getTextColor());
         }
     }
 

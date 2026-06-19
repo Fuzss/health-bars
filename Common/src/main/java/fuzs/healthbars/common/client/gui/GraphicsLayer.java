@@ -100,7 +100,7 @@ public interface GraphicsLayer {
         @Override
         public void text8xOutline(Font font, Component text, int x, int y, int color, int packedLight) {
             Preconditions.checkArgument(packedLight == PACKED_LIGHT);
-            GuiGraphicsHelper.drawInBatch8xOutline(this.guiGraphics, font, text, x, y, color, ARGB.opaque(0));
+            GuiGraphicsHelper.prepare8xTextOutline(this.guiGraphics, font, text, x, y, color, ARGB.opaque(0));
         }
 
         @Override

@@ -116,7 +116,7 @@ public class InLevelRenderingHandler {
                         Font.DisplayMode.SEE_THROUGH,
                         renderState.backgroundColor,
                         lightCoords,
-                        entityRenderState.outlineColor);
+                        0);
             }
 
             submitHealthBar(graphicsLayer,
@@ -127,7 +127,7 @@ public class InLevelRenderingHandler {
                     Font.DisplayMode.NORMAL,
                     config.behindWalls ? 0 : renderState.backgroundColor,
                     lightCoords,
-                    entityRenderState.outlineColor);
+                    0);
             poseStack.popPose();
             // when the component is empty, rendering has been forced by us and vanilla should not be allowed to proceed
             if (config.renderTitleComponent || component == CommonComponents.EMPTY) {

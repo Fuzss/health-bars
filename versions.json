@@ -1,8 +1,15 @@
 {
   "branches": {
-    "1.21.11": "archived",
     "1.21.1": "maintained",
+    "1.21.11": "archived",
     "26.1.x": "maintained",
     "26.2.x": "primary"
+  },
+  "properties": {
+    "distributions.curseforge.id": "1367734",
+    "distributions.curseforge.slug": "health-bars",
+    "distributions.github.slug": "health-bars",
+    "distributions.modrinth.id": "A3VSiTms",
+    "distributions.modrinth.slug": "health-bars"
   }
 }

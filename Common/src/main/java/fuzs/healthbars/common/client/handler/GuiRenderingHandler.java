@@ -22,6 +22,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -149,8 +150,7 @@ public class GuiRenderingHandler {
                 -1,
                 renderState.drawShadow(),
                 Font.DisplayMode.NORMAL,
-                renderState.backgroundColor,
-                GraphicsLayer.PACKED_LIGHT,
+                renderState.backgroundColor, LightCoordsUtil.FULL_BRIGHT,
                 0);
         graphicsLayer.guiGraphics().pose().popMatrix();
         posX.subtract(offsetX);
@@ -163,15 +163,13 @@ public class GuiRenderingHandler {
                 posX.intValue() - 1 + renderState.barWidth / 2,
                 posY.intValue(),
                 renderState,
-                -1,
-                GraphicsLayer.PACKED_LIGHT);
+                -1, LightCoordsUtil.FULL_BRIGHT);
         if (config.damageValues.renderDamageValues) {
             submitDamageScore(graphicsLayer,
                     font,
                     renderState.healthData,
                     posX.intValue() - 1 + (int) (renderState.barWidth * renderState.healthProgress),
-                    posY.intValue() - 1,
-                    GraphicsLayer.PACKED_LIGHT,
+                    posY.intValue() - 1, LightCoordsUtil.FULL_BRIGHT,
                     config.damageValues);
         }
     }
@@ -194,8 +192,7 @@ public class GuiRenderingHandler {
                 -1,
                 renderState.drawShadow(),
                 Font.DisplayMode.NORMAL,
-                renderState.backgroundColor,
-                GraphicsLayer.PACKED_LIGHT,
+                renderState.backgroundColor, LightCoordsUtil.FULL_BRIGHT,
                 0);
         posX.subtract(offsetX);
     }

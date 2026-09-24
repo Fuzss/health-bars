@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.LightCoordsUtil;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
@@ -23,8 +24,6 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public interface GraphicsLayer {
-    int PACKED_LIGHT = 0XF000F0;
-
     void translate(float zOffset);
 
     void fill(int minX, int minY, int maxX, int maxY, int color, Font.DisplayMode displayMode, int packedLight);
@@ -67,7 +66,6 @@ public interface GraphicsLayer {
     void blitSprite(@Nullable Function<Identifier, RenderType> renderTypeGetter, Identifier identifier, int x, int y, int width, int height, int color, int packedLight);
 
     record Gui(GuiGraphicsExtractor guiGraphics) implements GraphicsLayer {
-
         @Override
         public void translate(float zOffset) {
             // NO-OP
@@ -75,27 +73,27 @@ public interface GraphicsLayer {
 
         @Override
         public void fill(int minX, int minY, int maxX, int maxY, int color, Font.DisplayMode displayMode, int packedLight) {
-            Preconditions.checkArgument(packedLight == PACKED_LIGHT);
+            Preconditions.checkArgument(packedLight == LightCoordsUtil.FULL_BRIGHT);
             this.guiGraphics.fill(minX, minY, maxX, maxY, color);
         }
 
         @Override
         public void text(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor) {
             Preconditions.checkArgument(displayMode == Font.DisplayMode.NORMAL);
-            Preconditions.checkArgument(packedLight == PACKED_LIGHT);
+            Preconditions.checkArgument(packedLight == LightCoordsUtil.FULL_BRIGHT);
             this.guiGraphics.text(font, text, x, y, color, drawShadow);
         }
 
         @Override
         public void text8xOutline(Font font, Component text, int x, int y, int color, int packedLight) {
-            Preconditions.checkArgument(packedLight == PACKED_LIGHT);
+            Preconditions.checkArgument(packedLight == LightCoordsUtil.FULL_BRIGHT);
             GuiGraphicsHelper.prepare8xTextOutline(this.guiGraphics, font, text, x, y, color, ARGB.opaque(0));
         }
 
         @Override
         public void blitSprite(@Nullable Function<Identifier, RenderType> renderTypeGetter, Identifier identifier, int x, int y, int width, int height, int color, int packedLight) {
             Preconditions.checkArgument(renderTypeGetter == null);
-            Preconditions.checkArgument(packedLight == PACKED_LIGHT);
+            Preconditions.checkArgument(packedLight == LightCoordsUtil.FULL_BRIGHT);
             this.guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, identifier, x, y, width, height, color);
         }
     }
@@ -137,6 +135,26 @@ public interface GraphicsLayer {
 
         @Override
         public void text8xOutline(Font font, Component text, int x, int y, int color, int packedLight) {
+            this.poseStack.pushPose();
+            this.translate(-0.03F);
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (i != 0 || j != 0) {
+                        this.nodeCollector.order(1)
+                                .submitText(this.poseStack,
+                                        x + i,
+                                        y + j,
+                                        text.getVisualOrderText(),
+                                        false,
+                                        Font.DisplayMode.NORMAL,
+                                        packedLight,
+                                        ARGB.opaque(0),
+                                        0,
+                                        0);
+                    }
+                }
+            }
+            this.poseStack.popPose();
             this.nodeCollector.order(1)
                     .submitText(this.poseStack,
                             x,
@@ -147,7 +165,7 @@ public interface GraphicsLayer {
                             packedLight,
                             color,
                             0,
-                            ARGB.opaque(0));
+                            0);
         }
 
         @SuppressWarnings("DataFlowIssue")

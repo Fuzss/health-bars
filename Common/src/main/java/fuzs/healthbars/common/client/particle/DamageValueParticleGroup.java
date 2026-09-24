@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.ParticleGroupRenderState;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
@@ -60,8 +61,7 @@ public class DamageValueParticleGroup extends ParticleGroup<DamageValueParticle>
                         Minecraft.getInstance().font,
                         renderState.damageValue(),
                         0,
-                        0,
-                        GraphicsLayer.PACKED_LIGHT,
+                        0, LightCoordsUtil.FULL_BRIGHT,
                         damageValues);
                 poseStack.popPose();
             }

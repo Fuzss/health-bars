@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -36,9 +37,8 @@ public class PickEntityHandler {
      * so that a removed entity (which would otherwise keep its whole {@link net.minecraft.world.level.Level} alive) can
      * never be pinned here.
      */
-    @Nullable
     public static UUID getCrosshairPickEntity() {
-        return crosshairPickEntity;
+        return crosshairPickEntity != null ? crosshairPickEntity : Util.NIL_UUID;
     }
 
     /**

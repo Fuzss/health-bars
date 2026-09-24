@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.Entity;
@@ -105,7 +106,7 @@ public class InLevelRenderingHandler {
                 posY -= 13;
             }
 
-            int lightCoords = config.fullBrightness ? GraphicsLayer.PACKED_LIGHT : entityRenderState.lightCoords;
+            int lightCoords = config.fullBrightness ? LightCoordsUtil.FULL_BRIGHT : entityRenderState.lightCoords;
             GraphicsLayer graphicsLayer = new GraphicsLayer.Level(poseStack, submitNodeCollector);
             if (config.behindWalls) {
                 submitHealthBar(graphicsLayer,

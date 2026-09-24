@@ -154,6 +154,9 @@ public interface GraphicsLayer {
                     }
                 }
             }
+
+            // We cannot use the default 8x text outline rendering (by setting outline color to non-zero) since it will suffer from z-fighting.
+            // Manually reimplementing the behavior here works around that.
             this.poseStack.popPose();
             this.nodeCollector.order(1)
                     .submitText(this.poseStack,

@@ -1,10 +1,9 @@
 package fuzs.healthbars.common.client.gui;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import fuzs.healthbars.common.client.renderer.rendertype.ModRenderTypes;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import fuzs.puzzleslib.common.api.client.gui.v2.GuiGraphicsHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -13,7 +12,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -29,9 +27,7 @@ public interface GraphicsLayer {
 
     void translate(float zOffset);
 
-    @Nullable RenderType getTextBackgroundRenderType(Font.DisplayMode displayMode);
-
-    void fill(@Nullable RenderType renderType, int minX, int minY, int maxX, int maxY, float zOffset, int color, int packedLight);
+    void fill(int minX, int minY, int maxX, int maxY, int color, Font.DisplayMode displayMode, int packedLight);
 
     void text(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int packedLight, int outlineColor);
 
@@ -41,13 +37,12 @@ public interface GraphicsLayer {
 
     default void text(Font font, Component text, int x, int y, int color, boolean drawShadow, Font.DisplayMode displayMode, int backgroundColor, int packedLight, int outlineColor) {
         if (backgroundColor != 0) {
-            this.fill(this.getTextBackgroundRenderType(displayMode),
-                    x - 2,
+            this.fill(x - 2,
                     y - 2,
                     x + font.width(text) + 2,
                     y + font.lineHeight + (drawShadow ? 1 : 0),
-                    -0.03F,
                     backgroundColor,
+                    displayMode,
                     packedLight);
         }
 
@@ -79,13 +74,7 @@ public interface GraphicsLayer {
         }
 
         @Override
-        public @Nullable RenderType getTextBackgroundRenderType(Font.DisplayMode displayMode) {
-            return null;
-        }
-
-        @Override
-        public void fill(@Nullable RenderType renderType, int minX, int minY, int maxX, int maxY, float zOffset, int color, int packedLight) {
-            Preconditions.checkArgument(renderType == null);
+        public void fill(int minX, int minY, int maxX, int maxY, int color, Font.DisplayMode displayMode, int packedLight) {
             Preconditions.checkArgument(packedLight == PACKED_LIGHT);
             this.guiGraphics.fill(minX, minY, maxX, maxY, color);
         }
@@ -126,32 +115,9 @@ public interface GraphicsLayer {
         }
 
         @Override
-        public RenderType getTextBackgroundRenderType(Font.DisplayMode displayMode) {
-            return displayMode == Font.DisplayMode.SEE_THROUGH ? RenderTypes.textBackgroundSeeThrough() :
-                    ModRenderTypes.textBackground();
-        }
-
-        @Override
-        public void fill(@Nullable RenderType renderType, int minX, int minY, int maxX, int maxY, float zOffset, int color, int packedLight) {
-            Objects.requireNonNull(renderType, "render type is null");
+        public void fill(int minX, int minY, int maxX, int maxY, int color, Font.DisplayMode displayMode, int packedLight) {
             this.nodeCollector.order(-1)
-                    .submitCustomGeometry(this.poseStack,
-                            renderType,
-                            (PoseStack.Pose pose, VertexConsumer vertexConsumer) -> {
-                                Matrix4f matrix4f = pose.pose();
-                                vertexConsumer.addVertex(matrix4f, minX, minY, zOffset)
-                                        .setColor(color)
-                                        .setLight(packedLight);
-                                vertexConsumer.addVertex(matrix4f, minX, maxY, zOffset)
-                                        .setColor(color)
-                                        .setLight(packedLight);
-                                vertexConsumer.addVertex(matrix4f, maxX, maxY, zOffset)
-                                        .setColor(color)
-                                        .setLight(packedLight);
-                                vertexConsumer.addVertex(matrix4f, maxX, minY, zOffset)
-                                        .setColor(color)
-                                        .setLight(packedLight);
-                            });
+                    .submitTextBackground(this.poseStack, minX, minY, maxX, maxY, color, displayMode, packedLight);
         }
 
         @Override

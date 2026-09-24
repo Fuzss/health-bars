@@ -52,7 +52,7 @@ public class DamageValueParticleGroup extends ParticleGroup<DamageValueParticle>
             for (ParticleRenderState renderState : this.states) {
                 poseStack.pushPose();
                 poseStack.translate(renderState.position().x(), renderState.position().y(), renderState.position().z());
-                poseStack.mulPose(cameraRenderState.orientation);
+                poseStack.rotate(cameraRenderState.orientation);
                 poseStack.scale(0.025F, -0.025F, 0.025F);
                 ClientConfig.DamageValues damageValues = HealthBars.CONFIG.get(ClientConfig.class).level.damageValues;
                 GraphicsLayer graphicsLayer = new GraphicsLayer.Level(poseStack, submitNodeCollector);

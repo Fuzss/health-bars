@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.objects.AtlasSprite;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jspecify.annotations.Nullable;
@@ -43,7 +44,8 @@ public class GuiRenderingHandler {
             return;
         }
 
-        if (PickEntityHandler.getCrosshairPickEntity() instanceof LivingEntity livingEntity && HealthBars.CONFIG.get(
+        Entity crosshairPickEntity = Minecraft.getInstance().level.getEntity(PickEntityHandler.getCrosshairPickEntity());
+        if (crosshairPickEntity instanceof LivingEntity livingEntity && HealthBars.CONFIG.get(
                 ClientConfig.class).isEntityAllowed(livingEntity)) {
 
             float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);

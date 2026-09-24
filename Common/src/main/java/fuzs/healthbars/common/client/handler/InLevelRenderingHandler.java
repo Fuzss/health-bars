@@ -8,7 +8,7 @@ import fuzs.healthbars.common.client.helper.HealthBarRenderHelper;
 import fuzs.healthbars.common.client.renderer.entity.state.HealthTrackerRenderState;
 import fuzs.healthbars.common.config.ClientConfig;
 import fuzs.healthbars.common.world.entity.HealthTracker;
-import fuzs.puzzleslib.common.api.client.renderer.v1.RenderStateExtraData;
+import fuzs.puzzleslib.common.api.client.renderer.v2.RenderStateExtraData;
 import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -90,7 +90,7 @@ public class InLevelRenderingHandler {
                 poseStack.translate(vec3.x, vec3.y + 0.5, vec3.z);
             }
 
-            poseStack.mulPose(cameraRenderState.orientation);
+            poseStack.rotate(cameraRenderState.orientation);
             float renderScale = getRenderScale(entityRenderState.distanceToCameraSq);
             poseStack.scale(0.025F * renderScale, -0.025F * renderScale, 0.025F * renderScale);
 

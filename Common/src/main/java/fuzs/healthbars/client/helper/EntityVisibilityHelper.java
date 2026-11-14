@@ -6,6 +6,7 @@ import fuzs.healthbars.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
@@ -22,13 +23,24 @@ public class EntityVisibilityHelper {
         if (mustBePicked && livingEntity != PickEntityHandler.getCrosshairPickEntity()) {
             return false;
         } else if (!shouldShowName(livingEntity)) {
-            // run this earlier than vanilla to avoid raytracing if not necessary
+            // Run this earlier than vanilla to avoid raytracing if not necessary.
             return false;
-        } else {
-            return mustBePicked || entityRenderDispatcher.distanceToSqr(livingEntity) < getMaxRenderDistanceSqr(level, livingEntity,
-                    player, partialTicks
-            );
         }
+
+        int maxRenderDistance = getMaxRenderDistance(livingEntity);
+        double distanceToSqr = entityRenderDispatcher.distanceToSqr(livingEntity);
+        if (distanceToSqr >= (double) maxRenderDistance * maxRenderDistance) {
+            // Run this earlier than vanilla to avoid raytracing if not necessary.
+            return false;
+        }
+
+        int obstructedRenderDistance = maxRenderDistance / 4;
+        if (distanceToSqr < (double) obstructedRenderDistance * obstructedRenderDistance) {
+            // Inside the reduced distance for obstructed entities visibility is guaranteed, so no raytracing is needed.
+            return true;
+        }
+
+        return pickVisual(level, livingEntity, player, partialTicks).getType() == HitResult.Type.MISS;
     }
 
     /**
@@ -79,17 +91,18 @@ public class EntityVisibilityHelper {
         }
     }
 
-    private static int getMaxRenderDistanceSqr(Level level, LivingEntity livingEntity, Player player, float partialTicks) {
+    private static int getMaxRenderDistance(LivingEntity livingEntity) {
         int maxRenderDistance = HealthBars.CONFIG.get(ClientConfig.class).level.maxRenderDistance;
-        if (livingEntity.isDiscrete()) maxRenderDistance /= 2;
-        // use this instead of LivingEntity::hasLineOfSight, so we can look through transparent blocks like glass
-        if (pickVisual(level, livingEntity, player, partialTicks).getType() != HitResult.Type.MISS) {
-            maxRenderDistance /= 4;
+        if (livingEntity.isDiscrete()) {
+            return maxRenderDistance / 2;
         }
 
-        return maxRenderDistance * maxRenderDistance;
+        return maxRenderDistance;
     }
 
+    /**
+     * @see LivingEntity#hasLineOfSight(Entity)
+     */
     private static HitResult pickVisual(Level level, LivingEntity livingEntity, Player player, float partialTicks) {
         Vec3 playerEyePosition = player.getEyePosition(partialTicks);
         Vec3 entityEyePosition = livingEntity.getEyePosition(partialTicks);

@@ -83,7 +83,9 @@ public class PickEntityHandler {
         Vec3 vec3 = eyePosition.add(viewVector.x * interactionRange,
                 viewVector.y * interactionRange,
                 viewVector.z * interactionRange);
-        AABB aABB = entity.getBoundingBox().expandTowards(viewVector.scale(interactionRange)).inflate(1.0, 1.0, 1.0);
+        // sub-levels from other mods can give the camera entity an abnormally large bounding box,
+        // so search around the eye within the interaction range instead of starting from that box
+        AABB aABB = new AABB(eyePosition, vec3).inflate(1.0);
         EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(entity,
                 eyePosition,
                 vec3,

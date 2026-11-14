@@ -58,9 +58,10 @@ public class InLevelRenderingHandler {
                 Vec3 vec3 = entity.getAttachments().getNullable(EntityAttachment.NAME_TAG, 0,
                         entity.getViewYRot(partialTick)
                 );
-                // other mods might be rendering this mob without a level in some menu, so camera is null then
+                // Other mods might be rendering this mob without a level in some menu.
+                // So, the camera is null then or in an unusable state.
                 if (vec3 != null && dispatcher.camera != null &&
-                        dispatcher.camera.getEntity() instanceof LivingEntity) {
+                        minecraft.getCameraEntity() instanceof LivingEntity) {
                     if (EntityVisibilityHelper.isEntityVisible(minecraft.level, livingEntity, minecraft.player,
                             partialTick, dispatcher, config.pickedEntity
                     )) {

@@ -6,6 +6,7 @@ import fuzs.healthbars.common.client.gui.GraphicsLayer;
 import fuzs.healthbars.common.client.helper.EntityVisibilityHelper;
 import fuzs.healthbars.common.client.helper.HealthBarRenderHelper;
 import fuzs.healthbars.common.client.renderer.entity.state.HealthTrackerRenderState;
+import fuzs.healthbars.common.client.renderer.rendertype.ModRenderTypes;
 import fuzs.healthbars.common.config.ClientConfig;
 import fuzs.healthbars.common.world.entity.HealthTracker;
 import fuzs.puzzleslib.common.api.client.renderer.v2.RenderStateExtraData;
@@ -153,7 +154,7 @@ public class InLevelRenderingHandler {
 
     private static void submitHealthBar(GraphicsLayer graphicsLayer, int posX, int posY, HealthTrackerRenderState renderState, int color, Font.DisplayMode displayMode, int backgroundColor, int lightCoords, int outlineColor) {
         HealthBarRenderHelper.submitHealthBar(graphicsLayer,
-                displayMode == Font.DisplayMode.SEE_THROUGH ? RenderTypes::textSeeThrough : RenderTypes::text,
+                displayMode == Font.DisplayMode.SEE_THROUGH ? ModRenderTypes::textSeeThrough : RenderTypes::text,
                 posX,
                 posY,
                 renderState,
